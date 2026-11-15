@@ -19,7 +19,18 @@ export default async function HackathonPage() {
         title={<>Blank mind? Ship anyway.</>}
         description="Answer a few questions about the event and your team. You'll get feasible project ideas ranked on explainable criteria, each with a roadmap, task split, demo plan, judge Q&A and a fallback."
       />
-      <AiNotice feature="Hackathon Mode" />
+      <AiNotice
+        feature="Hackathon Mode"
+        alternative={
+          <>
+            Meanwhile, browse{" "}
+            <Link href="/discover?sort=quick" className="font-medium underline underline-offset-2">
+              quick-build ideas
+            </Link>{" "}
+            from the editorial library.
+          </>
+        }
+      />
       <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
         <HackathonWizard />
         <aside>
