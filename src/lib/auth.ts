@@ -2,7 +2,10 @@ import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
-import { createHash, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { createHash, randomBytes, scrypt, scryptSync, timingSafeEqual } from "node:crypto";
+import { promisify } from "node:util";
+
+const scryptAsync = promisify(scrypt) as (pw: string, salt: Buffer, len: number, opts: { N: number }) => Promise<Buffer>;
 import { db, newId, nowIso } from "./db";
 import type { SessionUser } from "./types";
 
@@ -12,17 +15,18 @@ const SCRYPT_N = 16384;
 
 // ---------- passwords ----------
 
-export function hashPassword(password: string): string {
+// Async scrypt so password hashing never blocks the event loop.
+export async function hashPassword(password: string): Promise<string> {
   const salt = randomBytes(16);
-  const hash = scryptSync(password, salt, 64, { N: SCRYPT_N });
+  const hash = await scryptAsync(password, salt, 64, { N: SCRYPT_N });
   return `scrypt$${SCRYPT_N}$${salt.toString("base64")}$${hash.toString("base64")}`;
 }
 
-export function verifyPassword(password: string, stored: string): boolean {
+export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   const [scheme, n, saltB64, hashB64] = stored.split("$");
   if (scheme !== "scrypt" || !saltB64 || !hashB64) return false;
   const expected = Buffer.from(hashB64, "base64");
-  const actual = scryptSync(password, Buffer.from(saltB64, "base64"), expected.length, { N: Number(n) });
+  const actual = await scryptAsync(password, Buffer.from(saltB64, "base64"), expected.length, { N: Number(n) });
   return actual.length === expected.length && timingSafeEqual(actual, expected);
 }
 
@@ -30,7 +34,7 @@ export function verifyPassword(password: string, stored: string): boolean {
 
 export class AuthError extends Error {}
 
-export function createUser(email: string, name: string, password: string): SessionUser {
+export async function createUser(email: string, name: string, password: string): Promise<SessionUser> {
   const normalized = email.trim().toLowerCase();
   const exists = db().prepare("SELECT 1 FROM users WHERE email = ?").get(normalized);
   if (exists) throw new AuthError("An account with this email already exists.");
@@ -38,23 +42,26 @@ export function createUser(email: string, name: string, password: string): Sessi
   const now = nowIso();
   db()
     .prepare("INSERT INTO users (id, email, name, password_hash, created_at) VALUES (?, ?, ?, ?, ?)")
-    .run(id, normalized, name.trim(), hashPassword(password), now);
+    .run(id, normalized, name.trim(), await hashPassword(password), now);
   db().prepare("INSERT INTO preferences (user_id, updated_at) VALUES (?, ?)").run(id, now);
   return { id, email: normalized, name: name.trim() };
 }
 
 // A fixed dummy hash so failed lookups take the same time as real ones.
-const DUMMY_HASH = hashPassword(randomBytes(12).toString("hex"));
+const DUMMY_HASH = (() => {
+  const salt = randomBytes(16);
+  return `scrypt$${SCRYPT_N}$${salt.toString("base64")}$${scryptSync(randomBytes(12).toString("hex"), salt, 64, { N: SCRYPT_N }).toString("base64")}`;
+})();
 
-export function authenticate(email: string, password: string): SessionUser | null {
+export async function authenticate(email: string, password: string): Promise<SessionUser | null> {
   const row = db()
     .prepare("SELECT id, email, name, password_hash FROM users WHERE email = ?")
     .get(email.trim().toLowerCase()) as { id: string; email: string; name: string; password_hash: string } | undefined;
   if (!row) {
-    verifyPassword(password, DUMMY_HASH);
+    await verifyPassword(password, DUMMY_HASH);
     return null;
   }
-  if (!verifyPassword(password, row.password_hash)) return null;
+  if (!(await verifyPassword(password, row.password_hash))) return null;
   return { id: row.id, email: row.email, name: row.name };
 }
 

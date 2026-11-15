@@ -27,6 +27,7 @@ export function openDatabase(file: string): DatabaseSync {
   db.exec("PRAGMA busy_timeout = 5000;");
   migrate(db);
   seedIfEmpty(db);
+  housekeeping(db);
   return db;
 }
 
@@ -46,6 +47,12 @@ export function migrate(db: DatabaseSync) {
       throw err;
     }
   }
+}
+
+/** Drops expired sessions and stale rate-limit windows on startup. */
+function housekeeping(d: DatabaseSync) {
+  d.prepare("DELETE FROM sessions WHERE expires_at < ?").run(new Date().toISOString());
+  d.prepare("DELETE FROM rate_limits WHERE window_start < ?").run(Math.floor(Date.now() / 1000) - 86_400);
 }
 
 export function db(): DatabaseSync {

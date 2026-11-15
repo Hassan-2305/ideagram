@@ -4,12 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api, errorMessage } from "@/lib/client";
+import { safeNextPath } from "@/lib/safe-next";
 import { Logo } from "@/components/shell";
 import { Button, Input, Label } from "@/components/ui";
 
 function safeNext(raw: string | null) {
-  // only allow same-site relative paths
-  return raw && raw.startsWith("/") && !raw.startsWith("//") ? raw : "/";
+  return typeof window === "undefined" ? "/" : safeNextPath(raw, window.location.origin);
 }
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {

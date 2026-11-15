@@ -141,6 +141,18 @@ export function insertIdea(input: NewIdea): Idea {
   return getIdea(id, input.ownerId ?? null)!;
 }
 
+/** Private AI ideas this user generated from `parentId` in the last `hours`. */
+export function recentChildren(userId: string, parentId: string, hours: number): Idea[] {
+  const since = new Date(Date.now() - hours * 3_600_000).toISOString();
+  const rows = db()
+    .prepare(
+      `SELECT i.* FROM ideas i, json_each(i.parent_ids) p
+       WHERE i.owner_id = ? AND i.source_kind = 'ai' AND p.value = ? AND i.created_at > ? ORDER BY i.created_at DESC LIMIT 6`,
+    )
+    .all(userId, parentId, since) as unknown as IdeaRow[];
+  return rows.map(rowToIdea);
+}
+
 export function externalIdExists(externalId: string): boolean {
   return !!db().prepare("SELECT 1 FROM ideas WHERE external_id = ?").get(externalId);
 }

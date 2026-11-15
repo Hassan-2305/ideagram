@@ -2,6 +2,7 @@ import "server-only";
 import { db, nowIso } from "../db";
 import { aiConfigured } from "../ai/client";
 import { explainExternal } from "../ai/engines";
+import { clampText } from "../ai/schemas";
 import { externalIdExists, insertIdea } from "../repo/ideas";
 import { logError } from "../api";
 import { guessCategory, guessStack, plainText } from "./heuristics";
@@ -79,7 +80,12 @@ export async function runSource(source: Source, { force = false, maxNew = 12 } =
           try {
             const e = await explainExternal({ title: it.title, text: it.text, url: it.url, source: source.name });
             if (!e.isIdea) continue; // skip news/hiring/opinion posts
-            ({ summary, problem, solution, insight, category, difficulty, buildTime } = e);
+            ({ category, difficulty } = e);
+            summary = clampText(e.summary, 280);
+            problem = clampText(e.problem, 900);
+            solution = clampText(e.solution, 1200);
+            insight = clampText(e.insight, 500);
+            buildTime = clampText(e.buildTime, 40);
             stack = e.stack.slice(0, 6);
             tags = e.tags.slice(0, 5).map((t) => t.toLowerCase());
             aiExplained = true;

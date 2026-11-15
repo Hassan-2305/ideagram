@@ -8,8 +8,8 @@ import { ProjectCreateSchema } from "@/lib/validation";
 export const GET = route(async ({ user }) => json({ projects: listProjects(user.id) }));
 
 export const POST = route(async ({ req, user }) => {
-  rateLimit(`ai-heavy:${user.id}`, 4, 60);
   const input = await body(req, ProjectCreateSchema);
+  rateLimit(`ai-heavy:${user.id}`, 4, 60);
   const idea = getIdea(input.ideaId, user.id);
   if (!idea) throw new HttpError(404, "Idea not found.", "not_found");
   const plan = await planProject(idea, input.context, user.id);

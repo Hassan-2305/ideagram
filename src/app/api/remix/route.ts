@@ -8,8 +8,8 @@ import { RemixSchema } from "@/lib/validation";
 export const GET = route(async ({ user }) => json({ remixes: listRemixes(user.id) }));
 
 export const POST = route(async ({ req, user }) => {
-  rateLimit(`ai:${user.id}`, 10, 60);
   const input = await body(req, RemixSchema);
+  rateLimit(`ai:${user.id}`, 10, 60);
   const ideas = getIdeas(input.ideaIds, user.id);
   if (ideas.length !== input.ideaIds.length) throw new HttpError(404, "One of the selected ideas is no longer available.", "not_found");
   const inputs = [

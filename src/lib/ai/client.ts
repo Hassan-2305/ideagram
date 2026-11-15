@@ -99,13 +99,22 @@ function trackUsage(row: {
   }
 }
 
-/** Per-user daily budget guard (requests) to cap cost exposure. */
+const inflight = new Map<string, number>();
+
+/**
+ * Budget guards: a per-user daily request limit (counting requests still in
+ * flight, so parallel calls can't overshoot) and a global daily USD cap so
+ * many accounts together can't run up unbounded cost.
+ */
 function assertDailyBudget(userId: string | null) {
+  const since = new Date(Date.now() - 86_400_000).toISOString();
+  const globalCap = Number(process.env.AI_GLOBAL_DAILY_USD ?? 25);
+  const spent = (db().prepare("SELECT COALESCE(SUM(cost_usd), 0) AS c FROM ai_usage WHERE created_at > ?").get(since) as { c: number }).c;
+  if (spent >= globalCap) throw new HttpError(503, "AI features have reached today's spending cap on this server. Please try again tomorrow.", "ai_global_budget");
   if (!userId) return;
   const limit = Number(process.env.AI_DAILY_REQUEST_LIMIT ?? 60);
-  const since = new Date(Date.now() - 86_400_000).toISOString();
   const n = (db().prepare("SELECT COUNT(*) AS n FROM ai_usage WHERE user_id = ? AND created_at > ?").get(userId, since) as { n: number }).n;
-  if (n >= limit) throw new HttpError(429, `You've reached today's AI limit (${limit} requests). It resets within 24 hours.`, "ai_budget");
+  if (n + (inflight.get(userId) ?? 0) >= limit) throw new HttpError(429, `You've reached today's AI limit (${limit} requests). It resets within 24 hours.`, "ai_budget");
 }
 
 export function hashKey(parts: unknown): string {
@@ -139,6 +148,7 @@ export async function runStructured<S extends z.ZodType>(opts: RunOptions<S>): P
 
   assertDailyBudget(opts.userId);
   const started = Date.now();
+  if (opts.userId) inflight.set(opts.userId, (inflight.get(opts.userId) ?? 0) + 1);
   try {
     const res = await getClient().beta.messages.parse({
       model,
@@ -184,6 +194,12 @@ export async function runStructured<S extends z.ZodType>(opts: RunOptions<S>): P
     if (err instanceof Anthropic.APIConnectionError) throw fail("Couldn't reach the AI service. Check the server's network connection.", "ai_network");
     if (err instanceof Anthropic.APIError) throw fail("The AI service had a problem. Please try again shortly.", "ai_upstream", 502);
     throw err;
+  } finally {
+    if (opts.userId) {
+      const n = (inflight.get(opts.userId) ?? 1) - 1;
+      if (n <= 0) inflight.delete(opts.userId);
+      else inflight.set(opts.userId, n);
+    }
   }
 }
 

@@ -5,8 +5,8 @@ import { getChallenge } from "@/lib/challenges";
 import { getSubmission, setSubmissionFeedback } from "@/lib/repo/workspace";
 
 export const POST = route(async ({ req, user }) => {
-  rateLimit(`ai:${user.id}`, 10, 60);
   const { submissionId } = await body(req, z.object({ submissionId: z.string().max(64) }));
+  rateLimit(`ai:${user.id}`, 10, 60);
   const sub = getSubmission(user.id, submissionId);
   if (!sub) throw new HttpError(404, "Submission not found.", "not_found");
   if (sub.feedback) return json({ feedback: sub.feedback });

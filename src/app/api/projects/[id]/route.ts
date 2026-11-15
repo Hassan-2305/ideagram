@@ -1,4 +1,4 @@
-import { body, HttpError, json, route } from "@/lib/api";
+import { body, HttpError, json, rateLimit, route } from "@/lib/api";
 import { ProjectPlanSchema, type ProjectPlan } from "@/lib/ai/schemas";
 import { deleteProject, getProject, updateProject } from "@/lib/repo/workspace";
 import { PlanEditSchema } from "@/lib/validation";
@@ -11,6 +11,8 @@ export const GET = route<{ id: string }>(async ({ user, params }) => {
 
 export const PATCH = route<{ id: string }>(async ({ req, user, params }) => {
   const input = await body(req, PlanEditSchema);
+  rateLimit(`project-edit:${user.id}`, 120, 3600);
+  if (input.plan && JSON.stringify(input.plan).length > 100_000) throw new HttpError(413, "The plan is too large to save.", "too_large");
   let plan: ProjectPlan | undefined;
   if (input.plan) {
     const parsed = ProjectPlanSchema.safeParse(input.plan);

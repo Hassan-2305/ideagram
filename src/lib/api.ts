@@ -36,6 +36,30 @@ function assertSameOrigin(req: NextRequest) {
   }
 }
 
+/**
+ * Client IP for rate limiting. The *first* X-Forwarded-For entry is client
+ * controlled, so we use the hop appended by the nearest proxy (the last entry),
+ * or the platform header. Set TRUST_PROXY=0 when not behind a proxy.
+ */
+export function clientIp(req: NextRequest): string {
+  if (process.env.TRUST_PROXY === "0") return "direct";
+  const real = req.headers.get("x-real-ip");
+  if (real) return real.trim();
+  const xff = req.headers.get("x-forwarded-for");
+  if (xff) return xff.split(",").map((s) => s.trim()).filter(Boolean).pop() ?? "unknown";
+  return "direct";
+}
+
+export function peekRateLimit(key: string, limit: number, windowSec: number): boolean {
+  const now = Math.floor(Date.now() / 1000);
+  const row = db().prepare("SELECT window_start, count FROM rate_limits WHERE key = ?").get(key) as { window_start: number; count: number } | undefined;
+  return !!row && now - row.window_start < windowSec && row.count >= limit;
+}
+
+export function clearRateLimit(key: string) {
+  db().prepare("DELETE FROM rate_limits WHERE key = ?").run(key);
+}
+
 /** Fixed-window rate limit stored in SQLite. */
 export function rateLimit(key: string, limit: number, windowSec: number) {
   const now = Math.floor(Date.now() / 1000);

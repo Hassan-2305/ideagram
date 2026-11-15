@@ -197,3 +197,13 @@ describe("streaks", () => {
     expect(computeStreak([], "2026-11-16")).toEqual({ current: 0, best: 0 });
   });
 });
+
+describe("similar-idea reuse", () => {
+  it("finds recent AI children of a seed for the same user only", async () => {
+    const { recentChildren } = await import("@/lib/repo/ideas");
+    const seed = privateIdea(alice, "Seed");
+    const child = insertIdea({ ...privateIdea(alice, "Child"), parentIds: [seed.id], ownerId: alice, isPublic: false });
+    expect(recentChildren(alice, seed.id, 6).map((i) => i.id)).toEqual([child.id]);
+    expect(recentChildren(bob, seed.id, 6)).toHaveLength(0);
+  });
+});

@@ -100,8 +100,8 @@ const QUICK_ORDER = `CASE
   WHEN i.build_time LIKE '%week%' THEN 2 ELSE 3 END`;
 
 export function getFeed(q: FeedQuery): FeedPage {
-  const limit = Math.min(Math.max(q.limit ?? 12, 1), 40);
-  const offset = Math.max(q.cursor ?? 0, 0);
+  const limit = Math.min(Math.max(Math.trunc(q.limit ?? 12), 1), 40);
+  const offset = Math.max(Math.trunc(q.cursor ?? 0), 0);
   const sort: FeedSort = q.sort ?? "for-you";
   const { sql, params, hasFts } = whereClause(q);
   const d = db();
