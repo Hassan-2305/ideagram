@@ -106,7 +106,8 @@ export async function runSource(source: Source, { force = false, maxNew = 12 } =
           publishedAt: it.publishedAt,
           isPublic: true,
           details: { implementation: aiExplained ? "ai-explained" : "source-text" },
-          quality: Math.min(0.75, 0.45 + Math.log10(1 + (it.signals.points ?? it.signals.stars ?? 0)) / 10),
+          // Raw source text is thinner than an editorial or AI-explained entry, so rank it lower.
+          quality: (aiExplained ? 0.45 : 0.25) + Math.min(0.2, Math.log10(1 + (it.signals.points ?? it.signals.stars ?? 0)) / 15),
         });
         added++;
       } catch (err) {

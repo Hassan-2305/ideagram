@@ -1,5 +1,13 @@
 import type { RawItem, Source } from "./index";
 
+function hostname(url: string) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "an external site";
+  }
+}
+
 /**
  * Hacker News "Show HN" posts via the public Algolia HN Search API
  * (https://hn.algolia.com/api). Recent posts (last 14 days) with >= 40 points.
@@ -21,7 +29,8 @@ export const hackerNewsSource: Source = {
       .map((h) => ({
         externalId: `hackernews:${h.objectID}`,
         title: h.title,
-        text: h.story_text ?? h.title,
+        // Link-only posts have no body; describe them honestly instead of showing a raw URL.
+        text: h.story_text?.trim() ? h.story_text : `${h.title} — a Show HN post${h.url ? ` linking to ${hostname(h.url)}` : ""}. Open the discussion for the creator's details.`,
         // Link to the HN discussion; the project URL (if any) is in the post.
         url: `https://news.ycombinator.com/item?id=${h.objectID}`,
         creator: h.author,

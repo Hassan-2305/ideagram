@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeAffinity, diversify, rankFeed, scoreIdeas, seededRandom, type UserSignals } from "@/lib/recommend";
+import { balanceSources, computeAffinity, diversify, rankFeed, scoreIdeas, seededRandom, type UserSignals } from "@/lib/recommend";
 import type { Idea } from "@/lib/types";
 
 const base = (over: Partial<Idea>): Idea => ({
@@ -99,6 +99,16 @@ describe("ranking", () => {
       if (remainingOthers) expect(same).toBe(false);
     }
     expect(out).toHaveLength(ideas.length);
+  });
+
+  it("limits raw external posts to one in any three slots while richer items remain", () => {
+    const items = [
+      ...["a", "b", "c", "d"].map((id) => ({ idea: base({ id, sourceKind: "hackernews" }) })),
+      ...["e", "f", "g", "h"].map((id) => ({ idea: base({ id, sourceKind: "editorial" }) })),
+    ];
+    const out = balanceSources(items).map((x) => x.idea.sourceKind);
+    for (let i = 0; i + 2 < 6; i++) expect(out.slice(i, i + 3).filter((k) => k === "hackernews").length).toBeLessThanOrEqual(1);
+    expect(out).toHaveLength(8);
   });
 
   it("seeded random is deterministic", () => {

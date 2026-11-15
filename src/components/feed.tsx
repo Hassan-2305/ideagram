@@ -156,15 +156,15 @@ export function DiscoverFeed({ initial }: { initial: FeedResponse }) {
             </button>
           ) : null}
         </form>
-        <div className="flex items-center gap-2">
-          <div role="radiogroup" aria-label="Sort" className="flex rounded-xl border border-line bg-surface p-1">
+        <div className="flex min-w-0 items-center gap-2">
+          <div role="radiogroup" aria-label="Sort" className="no-scrollbar flex min-w-0 flex-1 overflow-x-auto rounded-xl border border-line bg-surface p-1 md:flex-none">
             {SORTS.map((s) => (
               <button
                 key={s.value}
                 role="radio"
                 aria-checked={sort === s.value}
                 onClick={() => setParam("sort", s.value === "for-you" ? "" : s.value)}
-                className={cx("h-8 rounded-lg px-2.5 text-[13px] transition-colors", sort === s.value ? "bg-surface-3 font-medium text-ink" : "text-ink-3 hover:text-ink")}
+                className={cx("h-8 shrink-0 whitespace-nowrap rounded-lg px-2.5 text-[13px] transition-colors", sort === s.value ? "bg-surface-3 font-medium text-ink" : "text-ink-3 hover:text-ink")}
               >
                 {s.label}
               </button>

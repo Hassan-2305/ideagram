@@ -76,7 +76,7 @@ export function IdeaCard({
         <Link href={href} className="block">
           <h2 className="max-w-3xl font-serif text-[2rem] leading-[1.08] text-ink transition-colors group-hover:text-accent-text md:text-[2.5rem]">{idea.title}</h2>
         </Link>
-        <p className="mt-4 max-w-2xl text-[17px] leading-relaxed text-ink-2">{idea.summary}</p>
+        <p className="mt-4 max-w-2xl break-words text-[17px] leading-relaxed text-ink-2">{idea.summary}</p>
         {idea.insight ? (
           <blockquote className="mt-6 max-w-2xl border-l-2 border-accent pl-5 font-serif text-xl italic leading-snug text-ink">{idea.insight}</blockquote>
         ) : null}
@@ -105,7 +105,7 @@ export function IdeaCard({
   const detailed = variant === "detailed";
   return (
     <article
-      className="group relative flex flex-col rounded-2xl border border-line bg-surface p-5 shadow-soft transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-card animate-fade-up"
+      className="group relative flex min-w-0 flex-col break-words rounded-2xl border border-line bg-surface p-5 shadow-soft transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-card animate-fade-up"
       style={{ animationDelay: `${Math.min(index, 8) * 35}ms` }}
     >
       <div className="mb-3 flex items-center justify-between gap-2">

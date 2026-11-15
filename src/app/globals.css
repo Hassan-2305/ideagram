@@ -196,3 +196,7 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+p, h1, h2, h3, li, blockquote {
+  overflow-wrap: break-word;
+}

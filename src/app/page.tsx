@@ -13,10 +13,6 @@ import { CATEGORIES, categoryLabel, type Idea } from "@/lib/types";
 import { IdeaCard, Meta, SourceTag } from "@/components/idea-card";
 import { ButtonLink, Card, Eyebrow, SectionHeader } from "@/components/ui";
 
-function greeting() {
-  const h = new Date().getHours();
-  return h < 5 ? "Still up" : h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-}
 
 function Featured({ idea, saved }: { idea: Idea; saved?: boolean }) {
   return (
@@ -149,7 +145,7 @@ export default async function Home() {
   const blindCats = CATEGORIES.map((c) => c.slug).filter((c) => (aff[c] ?? 0) <= 0);
   const day = dayNumber();
   const blindCat = blindCats.length ? blindCats[day % blindCats.length] : null;
-  const unexpected = blindCat ? getFeed({ userId: user.id, category: blindCat, sort: "popular", limit: 1 }).items[0]?.idea : undefined;
+  const unexpected = blindCat ? getFeed({ userId: user.id, category: blindCat, source: "editorial", sort: "popular", limit: 1 }).items[0]?.idea : undefined;
   const forYou = getFeed({ userId: user.id, sort: "for-you", limit: 6 }).items.map((x) => x.idea).filter((i) => i.id !== featured?.id && i.id !== unexpected?.id).slice(0, 3);
   const mine = ownedIdeas(user.id, "ai", 3);
   const saves = recentSaves(user.id, 3);
@@ -162,7 +158,7 @@ export default async function Home() {
     <div className="space-y-14">
       <section className="animate-fade-up">
         <h1 className="font-serif text-[2.6rem] leading-[1.04] text-ink md:text-[3.4rem]">
-          {greeting()}, {firstName}.
+          Welcome back, {firstName}.
         </h1>
         <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[14px] text-ink-2">
           {gym.current ? (

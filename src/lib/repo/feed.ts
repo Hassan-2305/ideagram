@@ -1,6 +1,6 @@
 import "server-only";
 import { db, parseJson } from "../db";
-import { rankFeed, scoreIdeas, type ScoredIdea, type UserSignals } from "../recommend";
+import { balanceSources, rankFeed, scoreIdeas, type ScoredIdea, type UserSignals } from "../recommend";
 import { rowToIdea, toFtsQuery, VISIBLE, type IdeaRow } from "./ideas";
 import type { Idea } from "../types";
 
@@ -116,7 +116,7 @@ export function getFeed(q: FeedQuery): FeedPage {
     const day = new Date().toISOString().slice(0, 10);
     const seed = `${q.userId ?? "anon"}:${day}`;
     const ideas = rows.map((r) => ({ ...rowToIdea(r), quality: r.quality }));
-    const ranked = rankFeed(scoreIdeas(ideas, signals, seed), signals, ideas.length, seed);
+    const ranked = q.source ? rankFeed(scoreIdeas(ideas, signals, seed), signals, ideas.length, seed) : balanceSources(rankFeed(scoreIdeas(ideas, signals, seed), signals, ideas.length, seed));
     const slice = ranked.slice(offset, offset + limit);
     return {
       items: slice.map((s) => ({ idea: stripQuality(s.idea), reason: s.reason })),

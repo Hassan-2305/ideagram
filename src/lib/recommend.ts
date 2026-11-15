@@ -139,6 +139,23 @@ export function rankFeed(scored: ScoredIdea[], s: UserSignals, limit: number, se
   return diversify(picked.sort((a, b) => b.score - a.score));
 }
 
+const EXTERNAL = new Set(["hackernews", "github"]);
+
+/**
+ * Keeps the feed from being flooded by raw external posts: at most one
+ * external item in any three consecutive slots while richer items remain.
+ */
+export function balanceSources<T extends { idea: { sourceKind: string } }>(items: T[]): T[] {
+  const pool = [...items];
+  const out: T[] = [];
+  while (pool.length) {
+    const recent = out.slice(-2).some((x) => EXTERNAL.has(x.idea.sourceKind));
+    const idx = recent ? pool.findIndex((x) => !EXTERNAL.has(x.idea.sourceKind)) : 0;
+    out.push(pool.splice(idx === -1 ? 0 : idx, 1)[0]);
+  }
+  return out;
+}
+
 /** Reorders so no more than two consecutive items share a category. */
 export function diversify<T extends { idea: { category: string } }>(items: T[]): T[] {
   const pool = [...items];

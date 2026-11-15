@@ -246,4 +246,14 @@ CREATE TABLE error_log (
 );
 `,
   },
+  {
+    version: 2,
+    name: "rebalance raw external items",
+    sql: `
+UPDATE ideas SET quality = 0.3
+  WHERE source_kind IN ('hackernews','github') AND (details IS NULL OR details LIKE '%source-text%');
+UPDATE ideas SET summary = title || ' — a Show HN post. Open the discussion for the creator''s details.'
+  WHERE source_kind = 'hackernews' AND summary LIKE 'http%';
+`,
+  },
 ];
