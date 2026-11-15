@@ -66,8 +66,8 @@ export function HackathonWizard() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          if (step < STEPS.length - 1) canNext && setStep(step + 1);
-          else submit();
+          if (step >= STEPS.length - 1) submit();
+          else if (canNext) setStep(step + 1);
         }}
       >
         {step === 0 ? (
@@ -164,7 +164,7 @@ export function HackathonWizard() {
             {error}
           </p>
         ) : null}
-        {busy ? <p className="mt-5 text-[13px] text-ink-3">Ranking ideas against your constraints with Claude Opus. This takes about a minute — it's thinking through feasibility, roadmaps and judge questions.</p> : null}
+        {busy ? <p className="mt-5 text-[13px] text-ink-3">Ranking ideas against your constraints with Claude Opus. This takes about a minute — it is thinking through feasibility, roadmaps and judge questions.</p> : null}
 
         <div className="mt-8 flex items-center justify-between">
           <Button type="button" variant="ghost" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0 || busy}>

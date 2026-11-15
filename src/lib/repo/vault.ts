@@ -49,9 +49,13 @@ export function updateVaultItem(userId: string, ideaId: string, patch: { status?
   if (!existing) throw new HttpError(404, "This idea is not in your vault.", "not_found");
   const sets: string[] = [];
   const vals: (string | null)[] = [];
-  if (patch.status) (sets.push("status = ?"), vals.push(patch.status));
-  if (patch.notes !== undefined) (sets.push("notes = ?"), vals.push(patch.notes));
-  if (patch.tags) (sets.push("tags = ?"), vals.push(JSON.stringify(patch.tags)));
+  const add = (col: string, v: string) => {
+    sets.push(`${col} = ?`);
+    vals.push(v);
+  };
+  if (patch.status) add("status", patch.status);
+  if (patch.notes !== undefined) add("notes", patch.notes);
+  if (patch.tags) add("tags", JSON.stringify(patch.tags));
   if (!sets.length) return;
   sets.push("updated_at = ?");
   vals.push(nowIso());
@@ -63,7 +67,10 @@ export function updateVaultItem(userId: string, ideaId: string, patch: { status?
 export function listVault(userId: string, opts: { q?: string; status?: string; collectionId?: string; tag?: string } = {}): VaultItem[] {
   const where = ["v.user_id = :uid"];
   const params: Record<string, string> = { uid: userId };
-  if (opts.status) (where.push("v.status = :status"), (params.status = opts.status));
+  if (opts.status) {
+    where.push("v.status = :status");
+    params.status = opts.status;
+  }
   if (opts.collectionId) {
     where.push("v.idea_id IN (SELECT ci.idea_id FROM collection_items ci JOIN collections c ON c.id = ci.collection_id WHERE c.id = :cid AND c.user_id = :uid)");
     params.cid = opts.collectionId;
@@ -72,7 +79,10 @@ export function listVault(userId: string, opts: { q?: string; status?: string; c
     where.push("(i.title LIKE :q OR i.summary LIKE :q OR v.notes LIKE :q OR v.tags LIKE :q OR i.stack LIKE :q)");
     params.q = `%${opts.q.replace(/[%_]/g, "")}%`;
   }
-  if (opts.tag) (where.push("v.tags LIKE :tag"), (params.tag = `%"${opts.tag.replace(/["%_]/g, "")}"%`));
+  if (opts.tag) {
+    where.push("v.tags LIKE :tag");
+    params.tag = `%"${opts.tag.replace(/["%_]/g, "")}"%`;
+  }
   const rows = db()
     .prepare(
       `SELECT i.*, v.status AS v_status, v.notes AS v_notes, v.tags AS v_tags, v.created_at AS v_created, v.updated_at AS v_updated

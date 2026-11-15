@@ -8,6 +8,7 @@ import { gymStats, listProjects, ownedIdeas, profileStats } from "@/lib/repo/wor
 import { computeAffinity } from "@/lib/recommend";
 import { dailyChallenge, KIND_META } from "@/lib/challenges";
 import { refreshInBackground } from "@/lib/ingest";
+import { dayNumber } from "@/lib/time";
 import { CATEGORIES, categoryLabel, type Idea } from "@/lib/types";
 import { IdeaCard, Meta, SourceTag } from "@/components/idea-card";
 import { ButtonLink, Card, Eyebrow, SectionHeader } from "@/components/ui";
@@ -146,7 +147,7 @@ export default async function Home() {
   const signals = getSignals(user.id);
   const aff = computeAffinity(signals);
   const blindCats = CATEGORIES.map((c) => c.slug).filter((c) => (aff[c] ?? 0) <= 0);
-  const day = Math.floor(Date.now() / 86_400_000);
+  const day = dayNumber();
   const blindCat = blindCats.length ? blindCats[day % blindCats.length] : null;
   const unexpected = blindCat ? getFeed({ userId: user.id, category: blindCat, sort: "popular", limit: 1 }).items[0]?.idea : undefined;
   const forYou = getFeed({ userId: user.id, sort: "for-you", limit: 6 }).items.map((x) => x.idea).filter((i) => i.id !== featured?.id && i.id !== unexpected?.id).slice(0, 3);

@@ -34,24 +34,22 @@ export function CommandSearch({ open, onClose }: { open: boolean; onClose: () =>
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), 10);
-    } else {
-      setQ("");
-      setHits([]);
-      setError(null);
-    }
+    if (open) setTimeout(() => inputRef.current?.focus(), 10);
   }, [open]);
 
+  const close = () => {
+    setQ("");
+    setHits([]);
+    setError(null);
+    setLoading(false);
+    onClose();
+  };
+
   useEffect(() => {
-    if (!q.trim()) {
-      setHits([]);
-      setLoading(false);
-      return;
-    }
+    if (!q.trim()) return;
     const ctrl = new AbortController();
-    setLoading(true);
     const t = setTimeout(async () => {
+      setLoading(true);
       try {
         const r = await api<{ results: Hit[] }>(`/api/search?q=${encodeURIComponent(q)}`, { signal: ctrl.signal });
         setHits(r.results);
@@ -76,7 +74,7 @@ export function CommandSearch({ open, onClose }: { open: boolean; onClose: () =>
 
   const rows: Row[] = q.trim()
     ? [
-        ...hits.map((hit) => ({ kind: "idea" as const, hit })),
+        ...(q.trim() ? hits : []).map((hit) => ({ kind: "idea" as const, hit })),
         ...categoryMatches.map((c) => ({ kind: "nav" as const, label: `Browse ${c.label}`, href: `/discover?category=${c.slug}`, hint: "Category" })),
         { kind: "nav", label: `See all results for “${q.trim()}”`, href: `/discover?q=${encodeURIComponent(q.trim())}`, hint: "Discover" },
         { kind: "nav", label: `Generate ideas about “${q.trim()}”`, href: `/lab?topic=${encodeURIComponent(q.trim())}`, hint: "AI Lab" },
@@ -84,13 +82,13 @@ export function CommandSearch({ open, onClose }: { open: boolean; onClose: () =>
     : QUICK;
 
   const go = (r: Row) => {
-    onClose();
+    close();
     router.push(r.kind === "idea" ? `/idea/${r.hit.id}` : r.href);
   };
 
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[75] bg-black/40 p-3 pt-[10vh] animate-fade-in sm:p-6 sm:pt-[12vh]" onClick={onClose}>
+    <div className="fixed inset-0 z-[75] bg-black/40 p-3 pt-[10vh] animate-fade-in sm:p-6 sm:pt-[12vh]" onClick={close}>
       <div
         role="dialog"
         aria-modal="true"
@@ -105,9 +103,15 @@ export function CommandSearch({ open, onClose }: { open: boolean; onClose: () =>
             value={q}
             onChange={(e) => setQ(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === "Escape") onClose();
-              if (e.key === "ArrowDown") (e.preventDefault(), setActive((a) => Math.min(a + 1, rows.length - 1)));
-              if (e.key === "ArrowUp") (e.preventDefault(), setActive((a) => Math.max(a - 1, 0)));
+              if (e.key === "Escape") close();
+              if (e.key === "ArrowDown") {
+                e.preventDefault();
+                setActive((a) => Math.min(a + 1, rows.length - 1));
+              }
+              if (e.key === "ArrowUp") {
+                e.preventDefault();
+                setActive((a) => Math.max(a - 1, 0));
+              }
               if (e.key === "Enter" && rows[active]) go(rows[active]);
             }}
             placeholder="Search ideas, problems, technologies…"

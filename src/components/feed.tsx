@@ -56,6 +56,8 @@ export function DiscoverFeed({ initial }: { initial: FeedResponse }) {
   useEffect(() => {
     try {
       const v = localStorage.getItem(VIEW_KEY) as CardVariant | null;
+      // Hydration-safe: the server cannot know the saved view, so read it after mount.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (v === "compact" || v === "detailed" || v === "editorial") setView(v);
     } catch {
       /* ignore */
@@ -100,7 +102,12 @@ export function DiscoverFeed({ initial }: { initial: FeedResponse }) {
     return () => ctrl.abort();
   }, [qs]);
 
-  useEffect(() => setQuery(q), [q]);
+  // Keep the input in sync when the URL query changes (e.g. "Clear search").
+  const [syncedQ, setSyncedQ] = useState(q);
+  if (syncedQ !== q) {
+    setSyncedQ(q);
+    setQuery(q);
+  }
 
   const setParam = (key: string, value: string) => {
     const p = new URLSearchParams(sp.toString());
@@ -299,7 +306,7 @@ export function DiscoverFeed({ initial }: { initial: FeedResponse }) {
           </p>
         </div>
       ) : data.items.length > 0 ? (
-        <p className="mt-10 text-center text-[13px] text-ink-3">You've reached the end of this view — a good moment to remix what you saved or take today's challenge.</p>
+        <p className="mt-10 text-center text-[13px] text-ink-3">You&apos;ve reached the end of this view — a good moment to remix what you saved or take today&apos;s challenge.</p>
       ) : null}
     </div>
   );

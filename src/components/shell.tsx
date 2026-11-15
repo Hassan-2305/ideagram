@@ -61,6 +61,8 @@ function ThemeToggle() {
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
   useEffect(() => {
     const t = document.documentElement.dataset.theme as "light" | "dark" | undefined;
+    // Hydration-safe: the effective theme is only known in the browser.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTheme(t ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
   }, []);
   const flip = () => {
@@ -156,7 +158,6 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  useEffect(() => setMoreOpen(false), [pathname]);
 
   const bare = pathname === "/login" || pathname === "/signup";
   if (bare) return <>{children}</>;
@@ -255,7 +256,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
             <div className="grid grid-cols-2 gap-2">
               {[...NAV.filter((n) => !MOBILE_TABS.includes(n.href)), { href: "/profile", label: "Profile", icon: User }, { href: "/settings", label: "Settings", icon: Settings }].map((n) => (
-                <Link key={n.href} href={n.href} className="flex items-center gap-3 rounded-xl border border-line bg-bg-elev px-3.5 py-3.5 text-sm text-ink">
+                <Link key={n.href} href={n.href} onClick={() => setMoreOpen(false)} className="flex items-center gap-3 rounded-xl border border-line bg-bg-elev px-3.5 py-3.5 text-sm text-ink">
                   <n.icon size={18} className="text-ink-2" />
                   {n.label}
                 </Link>

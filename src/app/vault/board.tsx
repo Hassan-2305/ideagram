@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Check, Download, FolderPlus, Hammer, Library, MoreHorizontal, Pencil, Plus, Search, Shuffle, Tag, Trash2, X } from "lucide-react";
 import { api, errorMessage } from "@/lib/client";
 import { CATEGORIES, categoryLabel, VAULT_STATUSES, type Idea, type VaultStatus } from "@/lib/types";
@@ -336,12 +336,11 @@ export function VaultBoard({ initialItems, initialCollections, stats }: { initia
   const [selected, setSelected] = useState<string[]>([]);
   const [newCollection, setNewCollection] = useState<string | null>(null);
   const [capture, setCapture] = useState(false);
-  const [counts, setCounts] = useState(stats);
-
-  useEffect(() => {
+  void stats;
+  const counts = useMemo(() => {
     const c: Record<string, number> = {};
     for (const i of items) c[i.status] = (c[i.status] ?? 0) + 1;
-    setCounts(c);
+    return c;
   }, [items]);
 
   const allTags = useMemo(() => [...new Set(items.flatMap((i) => i.tags))].sort(), [items]);

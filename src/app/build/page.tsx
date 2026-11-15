@@ -77,7 +77,7 @@ export default async function BuildPage() {
           </ul>
         ) : (
           <div className="flex flex-wrap items-center gap-3 text-[14px] text-ink-2">
-            Save ideas you'd like to build first.
+            Save ideas you&apos;d like to build first.
             <ButtonLink href="/discover" variant="secondary" size="sm">
               Discover
             </ButtonLink>

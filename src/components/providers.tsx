@@ -54,6 +54,8 @@ export function AppProviders({ user, aiEnabled, children }: { user: SessionUser 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(TRAY_KEY);
+      // Hydration-safe: localStorage is only readable after mount.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (raw) setTray((JSON.parse(raw) as TrayIdea[]).slice(0, 4));
     } catch {
       /* storage unavailable: tray simply starts empty */
