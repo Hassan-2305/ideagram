@@ -35,13 +35,18 @@ export function listRemixes(userId: string, limit = 30): RemixRecord[] {
 }
 
 /** Walks parent links to build the lineage tree of a remixed idea (Idea Evolution). */
-export function lineage(ideaId: string, userId: string, depth = 4): { idea: Idea; parents: ReturnType<typeof lineage>[] } | null {
+export interface LineageNode {
+  idea: Idea;
+  parents: LineageNode[];
+}
+
+export function lineage(ideaId: string, userId: string, depth = 4): LineageNode | null {
   const [idea] = getIdeas([ideaId], userId);
   if (!idea) return null;
   if (depth <= 0) return { idea, parents: [] };
   return {
     idea,
-    parents: idea.parentIds.map((p) => lineage(p, userId, depth - 1)).filter((x): x is NonNullable<typeof x> => !!x),
+    parents: idea.parentIds.map((p) => lineage(p, userId, depth - 1)).filter((x): x is LineageNode => !!x),
   };
 }
 
