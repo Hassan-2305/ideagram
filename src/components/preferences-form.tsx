@@ -64,7 +64,7 @@ export function PreferencesForm({ initial, mode, onDone }: { initial: Prefs; mod
         <legend className="text-[15px] font-semibold text-ink">Technologies you use or want to learn</legend>
         <div className="mt-3 flex flex-wrap gap-1.5">
           {p.technologies.map((t) => (
-            <span key={t} className="inline-flex items-center gap-1 rounded-full bg-brand py-1 pl-3 pr-1.5 text-[13px] text-white">
+            <span key={t} className="inline-flex items-center gap-1 rounded-full bg-brand py-1 pl-3 pr-1.5 text-[13px]">
               {t}
               <button onClick={() => setP((x) => ({ ...x, technologies: x.technologies.filter((y) => y !== t) }))} aria-label={`Remove ${t}`} className="rounded-full p-0.5 opacity-70 hover:opacity-100">
                 <X size={12} />

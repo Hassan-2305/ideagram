@@ -188,7 +188,7 @@ export function DiscoverFeed({ initial }: { initial: FeedResponse }) {
                 ["feed", Rows3, "Posts"],
               ] as const
             ).map(([v, Icon, label]) => (
-              <button key={v} role="radio" aria-checked={view === v} aria-label={label} title={label} onClick={() => changeView(v)} className={cx("grid h-8 w-8 place-items-center rounded-full transition", view === v ? "bg-brand text-white" : "text-ink-3 hover:text-ink")}>
+              <button key={v} role="radio" aria-checked={view === v} aria-label={label} title={label} onClick={() => changeView(v)} className={cx("grid h-8 w-8 place-items-center rounded-full transition", view === v ? "bg-brand" : "text-ink-3 hover:text-ink")}>
                 <Icon size={16} />
               </button>
             ))}

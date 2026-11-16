@@ -12,12 +12,11 @@ import {
   Library,
   LogOut,
   Menu,
-  Moon,
+  Palette,
   PlusSquare,
   Search,
   Settings,
   Shuffle,
-  Sun,
   Trophy,
   User,
   X,
@@ -25,6 +24,7 @@ import {
 import { buttonClass, cx } from "./ui";
 import { useApp } from "./providers";
 import { CommandSearch } from "./command-search";
+import { ThemePicker } from "./theme-picker";
 import { RemixDock } from "./remix-dock";
 
 type NavItem = { href: string; label: string; icon: typeof Home };
@@ -47,7 +47,7 @@ function isActive(pathname: string, href: string) {
 export function Logo({ compact }: { compact?: boolean }) {
   return (
     <span className="flex items-center gap-2.5">
-      <span className="bg-brand grid h-9 w-9 shrink-0 place-items-center rounded-[12px] shadow-[0_8px_20px_-6px_rgba(124,58,237,0.7)]">
+      <span className="bg-brand grid h-9 w-9 shrink-0 place-items-center rounded-[12px] shadow-brand">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
           <path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.2 1.1 2V17h5v-1.2c0-.8.4-1.5 1.1-2A6 6 0 0 0 12 3Z" stroke="white" strokeWidth="2" strokeLinejoin="round" />
           <path d="M10 20.5h4" stroke="white" strokeWidth="2" strokeLinecap="round" />
@@ -62,32 +62,13 @@ export function Logo({ compact }: { compact?: boolean }) {
 function Avatar({ name, size = 28, active }: { name: string; size?: number; active?: boolean }) {
   return (
     <span className={cx("grid shrink-0 place-items-center rounded-full p-[2px]", active ? "ring-brand" : "bg-transparent")} style={{ width: size + 4, height: size + 4 }}>
-      <span className="bg-brand-warm grid place-items-center rounded-full text-[12px] font-bold text-white" style={{ width: size, height: size }}>
+      <span className="bg-brand-warm grid place-items-center rounded-full text-[12px] font-bold" style={{ width: size, height: size }}>
         {name.slice(0, 1).toUpperCase()}
       </span>
     </span>
   );
 }
 
-function useTheme() {
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
-  useEffect(() => {
-    // Hydration-safe: the effective theme is only known in the browser.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark");
-  }, []);
-  const flip = () => {
-    const next = theme === "dark" ? "light" : "dark";
-    document.documentElement.dataset.theme = next;
-    try {
-      localStorage.setItem("ig.theme", next);
-    } catch {
-      /* ignore */
-    }
-    setTheme(next);
-  };
-  return { theme, flip };
-}
 
 function SideLink({ item, active, onClick }: { item: NavItem; active: boolean; onClick?: () => void }) {
   return (
@@ -110,7 +91,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useApp();
-  const { theme, flip } = useTheme();
+  const [themeOpen, setThemeOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
 
@@ -176,10 +157,20 @@ export function AppShell({ children }: { children: ReactNode }) {
           ) : null}
         </nav>
         <div className="mt-auto flex flex-col gap-1">
-          <button onClick={flip} className="group flex h-12 items-center gap-4 rounded-2xl px-3 text-[15px] text-ink-2 hover:bg-surface-2 hover:text-ink" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}>
-            {theme === "dark" ? <Sun size={24} strokeWidth={1.8} /> : <Moon size={24} strokeWidth={1.8} />}
-            <span className="hidden xl:inline">{theme === "dark" ? "Light mode" : "Dark mode"}</span>
-          </button>
+          <div className="relative">
+            <button onClick={() => setThemeOpen((o) => !o)} aria-expanded={themeOpen} aria-haspopup="dialog" className={cx("group flex h-12 w-full items-center gap-4 rounded-2xl px-3 text-[15px] hover:bg-surface-2 hover:text-ink", themeOpen ? "glass text-ink" : "text-ink-2")}>
+              <Palette size={24} strokeWidth={1.8} className="transition-transform group-hover:scale-110" />
+              <span className="hidden xl:inline">Theme</span>
+            </button>
+            {themeOpen ? (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setThemeOpen(false)} />
+                <div role="dialog" aria-label="Theme" className="glass-strong absolute bottom-0 left-full z-50 ml-3 w-[360px] rounded-3xl p-5 shadow-float animate-pop">
+                  <ThemePicker />
+                </div>
+              </>
+            ) : null}
+          </div>
           {user ? (
             <>
               <SideLink item={{ href: "/settings", label: "Settings", icon: Settings }} active={isActive(pathname, "/settings")} />
@@ -211,8 +202,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             <button onClick={() => setSearchOpen(true)} className={buttonClass("ghost", "icon", "h-10 w-10")} aria-label="Search">
               <Search size={22} />
             </button>
-            <button onClick={flip} className={buttonClass("ghost", "icon", "h-10 w-10")} aria-label="Toggle theme">
-              {theme === "dark" ? <Sun size={21} /> : <Moon size={21} />}
+            <button onClick={() => setThemeOpen(true)} className={buttonClass("ghost", "icon", "h-10 w-10")} aria-label="Theme">
+              <Palette size={21} />
             </button>
             {!user ? (
               <Link href="/signup" className={buttonClass("primary", "sm")}>
@@ -239,7 +230,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Link>
           ))}
           <Link href="/lab" aria-label="Create ideas" className="grid place-items-center">
-            <span className="bg-brand grid h-11 w-11 place-items-center rounded-2xl text-white shadow-[0_8px_22px_-6px_rgba(124,58,237,0.8)]">
+            <span className="bg-brand grid h-11 w-11 place-items-center rounded-2xl shadow-brand">
               <FlaskConical size={22} />
             </span>
           </Link>
@@ -292,6 +283,15 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </button>
               ) : null}
             </div>
+          </div>
+        </div>
+      ) : null}
+
+      {themeOpen ? (
+        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm animate-fade-in md:hidden" onClick={() => setThemeOpen(false)}>
+          <div role="dialog" aria-modal="true" aria-label="Theme" className="glass-strong absolute inset-x-0 bottom-0 rounded-t-[28px] p-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] animate-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-surface-3" />
+            <ThemePicker />
           </div>
         </div>
       ) : null}

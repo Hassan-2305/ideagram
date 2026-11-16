@@ -32,7 +32,7 @@ export default async function GymPage({ searchParams }: { searchParams: Promise<
       />
 
       <section className="grid gap-4 lg:grid-cols-3">
-        <Link href={`/gym/${today.slug}`} className="group flex flex-col rounded-3xl bg-brand-warm p-7 text-white shadow-card transition hover:shadow-float lg:col-span-2 md:p-9">
+        <Link href={`/gym/${today.slug}`} className="group flex flex-col rounded-3xl bg-brand-warm p-7 shadow-card transition hover:shadow-float lg:col-span-2 md:p-9">
           <p className="text-[12px] font-semibold opacity-60">Today · {KIND_META[today.kind].label}</p>
           <h2 className="mt-4 font-serif text-[2.2rem] leading-[1.08] md:text-[2.6rem]">{today.title}</h2>
           <p className="mt-3 max-w-2xl text-[15px] leading-relaxed opacity-75">{today.prompt}</p>

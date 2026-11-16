@@ -9,7 +9,7 @@ type Variant = "primary" | "secondary" | "ghost" | "danger" | "outline";
 type Size = "sm" | "md" | "lg" | "icon";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-brand text-white shadow-[0_8px_24px_-8px_rgba(124,58,237,0.6)] hover:brightness-110 hover:shadow-[0_10px_30px_-8px_rgba(124,58,237,0.75)]",
+  primary: "bg-brand shadow-brand hover:brightness-110",
   secondary: "glass text-ink hover:bg-surface-3",
   outline: "border border-line-strong text-ink hover:bg-surface-2",
   ghost: "text-ink-2 hover:text-ink hover:bg-surface-2",
@@ -80,7 +80,7 @@ export function Chip({
       aria-pressed={active}
       className={cx(
         "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-4 text-[13px] font-medium transition-all",
-        active ? "border-transparent bg-brand text-white shadow-[0_6px_18px_-8px_rgba(124,58,237,0.7)]" : "border-line bg-surface text-ink-2 backdrop-blur-xl hover:border-line-strong hover:text-ink",
+        active ? "border-transparent bg-brand shadow-brand" : "border-line bg-surface text-ink-2 backdrop-blur-xl hover:border-line-strong hover:text-ink",
         className,
       )}
       {...rest}
@@ -158,7 +158,7 @@ export function SectionHeader({ title, description, action }: { title: string; d
 export function EmptyState({ icon, title, description, action }: { icon?: ReactNode; title: string; description: ReactNode; action?: ReactNode }) {
   return (
     <div className="glass flex flex-col items-center rounded-3xl px-6 py-14 text-center animate-fade-in">
-      {icon ? <div className="bg-brand mb-4 grid h-14 w-14 place-items-center rounded-full text-white shadow-[0_10px_30px_-10px_rgba(124,58,237,0.8)]">{icon}</div> : null}
+      {icon ? <div className="bg-brand mb-4 grid h-14 w-14 place-items-center rounded-full shadow-brand">{icon}</div> : null}
       <h3 className="text-base font-semibold text-ink">{title}</h3>
       <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-ink-2">{description}</p>
       {action ? <div className="mt-5">{action}</div> : null}

@@ -29,7 +29,7 @@ function StoriesRail({ categories, challengeDone, signedIn }: { categories: stri
   return (
     <div className="glass no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 py-4 sm:mx-0 sm:rounded-[28px]">
       <Story href={`/gym/${c.slug}`} label="Today" seen={challengeDone}>
-        <span className="bg-brand-warm grid h-[60px] w-[60px] place-items-center rounded-full text-white">
+        <span className="bg-brand-warm grid h-[60px] w-[60px] place-items-center rounded-full">
           <Dumbbell size={26} />
         </span>
       </Story>
@@ -41,7 +41,7 @@ function StoriesRail({ categories, challengeDone, signedIn }: { categories: stri
         </Story>
       ) : null}
       <Story href="/hackathon" label="Hackathon">
-        <span className="bg-brand grid h-[60px] w-[60px] place-items-center rounded-full text-white">
+        <span className="bg-brand grid h-[60px] w-[60px] place-items-center rounded-full">
           <Trophy size={24} />
         </span>
       </Story>
@@ -125,7 +125,7 @@ export default async function Home() {
           {user && stats ? (
             <Link href="/profile" className="flex items-center gap-3 px-1">
               <span className="ring-brand rounded-full p-[2px]">
-                <span className="bg-brand-warm grid h-12 w-12 place-items-center rounded-full border-2 border-[var(--bg)] text-[17px] font-bold text-white">{user.name.slice(0, 1).toUpperCase()}</span>
+                <span className="bg-brand-warm grid h-12 w-12 place-items-center rounded-full border-2 border-[var(--bg)] text-[17px] font-bold">{user.name.slice(0, 1).toUpperCase()}</span>
               </span>
               <span className="min-w-0">
                 <span className="block truncate text-[14.5px] font-bold text-ink">{user.name}</span>

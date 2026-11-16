@@ -499,7 +499,7 @@ export function VaultBoard({ initialItems, initialCollections, stats }: { initia
             <p className="mb-2 text-[12px] font-semibold text-ink-3">Tags</p>
             <div className="flex flex-wrap gap-1.5">
               {allTags.map((t) => (
-                <button key={t} onClick={() => setTag(tag === t ? "" : t)} aria-pressed={tag === t} className={cx("rounded-full px-2.5 py-0.5 text-[12px]", tag === t ? "bg-brand text-white" : "bg-surface-2 text-ink-2 hover:text-ink")}>
+                <button key={t} onClick={() => setTag(tag === t ? "" : t)} aria-pressed={tag === t} className={cx("rounded-full px-2.5 py-0.5 text-[12px]", tag === t ? "bg-brand" : "bg-surface-2 text-ink-2 hover:text-ink")}>
                   #{t}
                 </button>
               ))}

@@ -6,6 +6,7 @@ import { sourceStatus } from "@/lib/ingest";
 import { Badge, Card, PageHeader } from "@/components/ui";
 import { PreferencesForm } from "@/components/preferences-form";
 import { ResetPersonalization } from "./reset";
+import { ThemePicker } from "@/components/theme-picker";
 
 export const metadata: Metadata = { title: "Settings" };
 
@@ -32,6 +33,11 @@ export default async function SettingsPage() {
   return (
     <div className="max-w-5xl">
       <PageHeader eyebrow="Settings" title="Settings" />
+      <Section title="Appearance" description="Saved on this device.">
+        <div className="max-w-xl">
+          <ThemePicker />
+        </div>
+      </Section>
       <Section title="Interests & personalization" description="These shape the “For you” feed. Your actions refine it over time.">
         <PreferencesForm initial={prefs} mode="settings" />
       </Section>

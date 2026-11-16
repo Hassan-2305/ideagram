@@ -1,4 +1,5 @@
-@import "tailwindcss";
+/* Scan only src/ for classes — never the SQLite files in data/ (DB writes would otherwise trigger rebuild loops). */
+@import "tailwindcss" source("../");
 
 /* ------------------------------------------------------------------
    Idea Gym — "Aurora" design system
@@ -6,109 +7,153 @@
    cyan and pink light. One sans typeface. Dark by default, light optional.
    ------------------------------------------------------------------ */
 
+/* Palettes — chosen in the theme picker, stored per device. */
+:root[data-palette="ocean"], :root:not([data-palette]) {
+  --base-dark: #03161a;
+  --base-light: #eaf6f5;
+  --side-dark: rgba(8, 40, 46, 0.55);
+  --p1: #34d399;
+  --p2: #14b8a6;
+  --p3: #0ea5e9;
+  --brand-ink: #032321;
+  --accent-dark: #2dd4bf;
+  --accent-light: #0f766e;
+  --accent-text-dark: #5eead4;
+  --accent-text-light: #0f766e;
+  --g1: 20, 184, 166;
+  --g2: 14, 165, 233;
+  --g3: 52, 211, 153;
+  --g4: 37, 99, 235;
+}
+:root[data-palette="ember"] {
+  --base-dark: #140b08;
+  --base-light: #fbf2ec;
+  --side-dark: rgba(48, 24, 16, 0.55);
+  --p1: #fb7185;
+  --p2: #f97316;
+  --p3: #fbbf24;
+  --brand-ink: #2a0e04;
+  --accent-dark: #fb923c;
+  --accent-light: #c2410c;
+  --accent-text-dark: #fdba74;
+  --accent-text-light: #c2410c;
+  --g1: 249, 115, 22;
+  --g2: 244, 63, 94;
+  --g3: 251, 191, 36;
+  --g4: 190, 18, 60;
+}
+:root[data-palette="rose"] {
+  --base-dark: #140810;
+  --base-light: #fcf1f5;
+  --side-dark: rgba(48, 18, 36, 0.55);
+  --p1: #fda4af;
+  --p2: #f472b6;
+  --p3: #c084fc;
+  --brand-ink: #2d0a1b;
+  --accent-dark: #f472b6;
+  --accent-light: #be185d;
+  --accent-text-dark: #f9a8d4;
+  --accent-text-light: #be185d;
+  --g1: 244, 114, 182;
+  --g2: 251, 146, 60;
+  --g3: 192, 132, 252;
+  --g4: 225, 29, 72;
+}
+:root[data-palette="graphite"] {
+  --base-dark: #0b0c0d;
+  --base-light: #f2f3f0;
+  --side-dark: rgba(40, 42, 44, 0.55);
+  --p1: #d9f99d;
+  --p2: #bef264;
+  --p3: #a3e635;
+  --brand-ink: #141a05;
+  --accent-dark: #c6f432;
+  --accent-light: #4d7c0f;
+  --accent-text-dark: #d9f99d;
+  --accent-text-light: #4d7c0f;
+  --g1: 163, 230, 53;
+  --g2: 148, 163, 184;
+  --g3: 203, 213, 225;
+  --g4: 100, 116, 139;
+}
+:root[data-palette="aurora"] {
+  --base-dark: #07061a;
+  --base-light: #eef0fb;
+  --side-dark: rgba(22, 20, 52, 0.55);
+  --p1: #8b5cf6;
+  --p2: #6366f1;
+  --p3: #06b6d4;
+  --brand-ink: #ffffff;
+  --accent-dark: #a78bfa;
+  --accent-light: #7c3aed;
+  --accent-text-dark: #c4b5fd;
+  --accent-text-light: #6d28d9;
+  --g1: 124, 58, 237;
+  --g2: 6, 182, 212;
+  --g3: 219, 39, 119;
+  --g4: 79, 70, 229;
+}
+
 :root {
-  /* light: pale lavender + white frost */
-  --bg: #eef0fb;
-  --bg-elev: rgba(255, 255, 255, 0.55);
+  --glass-blur: 22px;
+  --bg: var(--base-light);
+  --bg-elev: rgba(255, 255, 255, 0.6);
   --surface: rgba(255, 255, 255, 0.62);
   --surface-2: rgba(255, 255, 255, 0.45);
-  --surface-3: rgba(99, 102, 241, 0.1);
-  --border: rgba(255, 255, 255, 0.75);
-  --border-strong: rgba(99, 102, 241, 0.28);
-  --hairline: rgba(30, 27, 75, 0.08);
-  --text: #16133a;
-  --text-2: #4b4870;
-  --text-3: #817ea3;
-  --accent: #7c3aed;
+  --surface-3: color-mix(in srgb, var(--accent-light) 10%, transparent);
+  --border: rgba(255, 255, 255, 0.8);
+  --border-strong: color-mix(in srgb, var(--accent-light) 30%, transparent);
+  --hairline: rgba(20, 20, 30, 0.08);
+  --text: #15161c;
+  --text-2: #4a4c58;
+  --text-3: #80828f;
+  --accent: var(--accent-light);
   --accent-ink: #ffffff;
-  --accent-soft: rgba(124, 58, 237, 0.12);
-  --accent-text: #6d28d9;
+  --accent-soft: color-mix(in srgb, var(--accent-light) 13%, transparent);
+  --accent-text: var(--accent-text-light);
   --success: #059669;
   --success-soft: rgba(5, 150, 105, 0.12);
   --warn: #b45309;
   --warn-soft: rgba(245, 158, 11, 0.16);
   --danger: #e11d48;
   --danger-soft: rgba(225, 29, 72, 0.12);
-  --ring: rgba(124, 58, 237, 0.45);
-  --glass-blur: 22px;
+  --ring: color-mix(in srgb, var(--accent-light) 45%, transparent);
   --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  --shadow-sm: 0 1px 2px rgba(30, 27, 75, 0.06), var(--glass-highlight);
-  --shadow-md: 0 10px 30px -12px rgba(49, 46, 129, 0.25), var(--glass-highlight);
-  --shadow-lg: 0 24px 60px -18px rgba(49, 46, 129, 0.35), var(--glass-highlight);
-  --aurora-1: rgba(139, 92, 246, 0.35);
-  --aurora-2: rgba(34, 211, 238, 0.28);
-  --aurora-3: rgba(236, 72, 153, 0.22);
-  --aurora-4: rgba(99, 102, 241, 0.3);
+  --shadow-sm: 0 1px 2px rgba(20, 20, 40, 0.06), var(--glass-highlight);
+  --shadow-md: 0 10px 30px -12px rgba(20, 20, 40, 0.2), var(--glass-highlight);
+  --shadow-lg: 0 24px 60px -18px rgba(20, 20, 40, 0.3), var(--glass-highlight);
+  --glow-alpha: 0.28;
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #07061a;
-    --bg-elev: rgba(22, 20, 52, 0.55);
-    --surface: rgba(255, 255, 255, 0.055);
-    --surface-2: rgba(255, 255, 255, 0.075);
-    --surface-3: rgba(255, 255, 255, 0.11);
-    --border: rgba(255, 255, 255, 0.1);
-    --border-strong: rgba(255, 255, 255, 0.2);
-    --hairline: rgba(255, 255, 255, 0.07);
-    --text: #f4f2ff;
-    --text-2: #bdb8e3;
-    --text-3: #8580b3;
-    --accent: #a78bfa;
-    --accent-ink: #0b0820;
-    --accent-soft: rgba(167, 139, 250, 0.16);
-    --accent-text: #c4b5fd;
-    --success: #34d399;
-    --success-soft: rgba(52, 211, 153, 0.14);
-    --warn: #fbbf24;
-    --warn-soft: rgba(251, 191, 36, 0.14);
-    --danger: #fb7185;
-    --danger-soft: rgba(251, 113, 133, 0.14);
-    --ring: rgba(167, 139, 250, 0.55);
-    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), var(--glass-highlight);
-    --shadow-md: 0 14px 40px -16px rgba(0, 0, 0, 0.7), var(--glass-highlight);
-    --shadow-lg: 0 30px 80px -20px rgba(0, 0, 0, 0.85), var(--glass-highlight);
-    --aurora-1: rgba(124, 58, 237, 0.42);
-    --aurora-2: rgba(6, 182, 212, 0.26);
-    --aurora-3: rgba(219, 39, 119, 0.26);
-    --aurora-4: rgba(79, 70, 229, 0.38);
-    color-scheme: dark;
-  }
-}
-
 :root[data-theme="dark"] {
-  --bg: #07061a;
-  --bg-elev: rgba(22, 20, 52, 0.55);
+  --bg: var(--base-dark);
+  --bg-elev: var(--side-dark);
   --surface: rgba(255, 255, 255, 0.055);
   --surface-2: rgba(255, 255, 255, 0.075);
   --surface-3: rgba(255, 255, 255, 0.11);
   --border: rgba(255, 255, 255, 0.1);
   --border-strong: rgba(255, 255, 255, 0.2);
   --hairline: rgba(255, 255, 255, 0.07);
-  --text: #f4f2ff;
-  --text-2: #bdb8e3;
-  --text-3: #8580b3;
-  --accent: #a78bfa;
-  --accent-ink: #0b0820;
-  --accent-soft: rgba(167, 139, 250, 0.16);
-  --accent-text: #c4b5fd;
+  --text: #f5f5f4;
+  --text-2: #bdbcc4;
+  --text-3: #85848f;
+  --accent: var(--accent-dark);
+  --accent-ink: var(--brand-ink);
+  --accent-soft: color-mix(in srgb, var(--accent-dark) 16%, transparent);
+  --accent-text: var(--accent-text-dark);
   --success: #34d399;
   --success-soft: rgba(52, 211, 153, 0.14);
   --warn: #fbbf24;
   --warn-soft: rgba(251, 191, 36, 0.14);
   --danger: #fb7185;
   --danger-soft: rgba(251, 113, 133, 0.14);
-  --ring: rgba(167, 139, 250, 0.55);
+  --ring: color-mix(in srgb, var(--accent-dark) 55%, transparent);
   --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), var(--glass-highlight);
   --shadow-md: 0 14px 40px -16px rgba(0, 0, 0, 0.7), var(--glass-highlight);
   --shadow-lg: 0 30px 80px -20px rgba(0, 0, 0, 0.85), var(--glass-highlight);
-  --aurora-1: rgba(124, 58, 237, 0.42);
-  --aurora-2: rgba(6, 182, 212, 0.26);
-  --aurora-3: rgba(219, 39, 119, 0.26);
-  --aurora-4: rgba(79, 70, 229, 0.38);
+  --glow-alpha: 0.3;
   color-scheme: dark;
 }
 
@@ -206,10 +251,10 @@ body::after {
 }
 body::before {
   background:
-    radial-gradient(38vmax 34vmax at 12% 8%, var(--aurora-1), transparent 70%),
-    radial-gradient(30vmax 30vmax at 88% 18%, var(--aurora-2), transparent 70%),
-    radial-gradient(34vmax 30vmax at 70% 92%, var(--aurora-3), transparent 70%),
-    radial-gradient(40vmax 36vmax at 18% 88%, var(--aurora-4), transparent 70%);
+    radial-gradient(38vmax 34vmax at 12% 8%, rgba(var(--g1), var(--glow-alpha)), transparent 70%),
+    radial-gradient(30vmax 30vmax at 88% 18%, rgba(var(--g2), calc(var(--glow-alpha) * 0.8)), transparent 70%),
+    radial-gradient(34vmax 30vmax at 70% 92%, rgba(var(--g3), calc(var(--glow-alpha) * 0.7)), transparent 70%),
+    radial-gradient(40vmax 36vmax at 18% 88%, rgba(var(--g4), calc(var(--glow-alpha) * 0.9)), transparent 70%);
   filter: blur(40px);
   animation: drift 26s ease-in-out infinite;
 }
@@ -243,19 +288,69 @@ body::after {
 
 /* Brand gradient (Aurora): violet → indigo → cyan, with a pink spark. */
 .bg-brand {
-  background-image: linear-gradient(120deg, #8b5cf6 0%, #6366f1 45%, #06b6d4 100%);
+  background-image: linear-gradient(120deg, var(--p1) 0%, var(--p2) 50%, var(--p3) 100%);
+  color: var(--brand-ink);
 }
 .bg-brand-warm {
-  background-image: linear-gradient(120deg, #ec4899 0%, #8b5cf6 55%, #6366f1 100%);
+  background-image: linear-gradient(135deg, var(--p3) 0%, var(--p2) 55%, var(--p1) 100%);
+  color: var(--brand-ink);
 }
 .text-brand {
-  background-image: linear-gradient(110deg, #a78bfa 0%, #818cf8 40%, #22d3ee 75%, #f472b6 100%);
+  background-image: linear-gradient(110deg, var(--p1) 0%, var(--p2) 50%, var(--p3) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 .ring-brand {
-  background: conic-gradient(from 210deg, #22d3ee, #8b5cf6, #ec4899, #6366f1, #22d3ee);
+  background: conic-gradient(from 210deg, var(--p1), var(--p2), var(--p3), var(--p1));
+}
+.shadow-brand {
+  box-shadow: 0 8px 24px -8px color-mix(in srgb, var(--p2) 65%, transparent);
+}
+.shadow-brand:hover {
+  box-shadow: 0 10px 30px -8px color-mix(in srgb, var(--p2) 80%, transparent);
+}
+
+/* Covers: palette mode (default) mixes the active palette per idea; "vivid" uses each category's own colours. */
+.cover-bg {
+  --c1: var(--k1);
+  --c2: var(--k2);
+  --c3: var(--k3);
+  background-color: var(--c2);
+  background-image:
+    radial-gradient(60% 55% at var(--x1) var(--y1), color-mix(in srgb, var(--c1) 92%, transparent), transparent 70%),
+    radial-gradient(55% 60% at var(--x2) var(--y2), color-mix(in srgb, var(--c3) 92%, transparent), transparent 70%),
+    linear-gradient(var(--ang), var(--c1), var(--c2) 50%, var(--c3));
+}
+.avatar-bg {
+  --c1: var(--k1);
+  --c2: var(--k2);
+  --c3: var(--k3);
+  background-image: linear-gradient(135deg, var(--c1), var(--c2), var(--c3));
+}
+:root[data-covers="vivid"] .cover-bg,
+:root[data-covers="vivid"] .avatar-bg {
+  --c1: var(--cat1);
+  --c2: var(--cat2);
+  --c3: var(--cat3);
+}
+/* Soft scrim keeps cover text legible on pale palettes. */
+.cover-scrim {
+  background: linear-gradient(to top, rgba(10, 8, 20, 0.42), rgba(10, 8, 20, 0.12) 55%, transparent);
+}
+:root[data-palette="graphite"]:not([data-covers="vivid"]) .cover-scrim {
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.35), transparent 60%);
+}
+/* Text on covers adapts to light palettes (e.g. Graphite lime) */
+.cover-ink {
+  color: #ffffff;
+}
+:root[data-palette="graphite"]:not([data-covers="vivid"]) .cover-ink {
+  color: #10140a;
+}
+:root[data-palette="graphite"]:not([data-covers="vivid"]) .cover-ink .cover-chip {
+  border-color: rgba(0, 0, 0, 0.18);
+  background: rgba(255, 255, 255, 0.35);
 }
 
 /* Headings use the one typeface at display weight. */

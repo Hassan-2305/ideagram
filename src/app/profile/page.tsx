@@ -53,7 +53,7 @@ export default async function ProfilePage({ searchParams }: { searchParams: Prom
     <div className="mx-auto max-w-[935px]">
       <header className="flex flex-col gap-6 px-1 sm:flex-row sm:items-center sm:gap-12 animate-fade-up">
         <span className="ring-brand mx-auto shrink-0 rounded-full p-[3px] sm:mx-0">
-          <span className="bg-brand-warm grid h-28 w-28 place-items-center rounded-full border-4 border-[var(--bg)] text-[42px] font-extrabold text-white sm:h-36 sm:w-36 sm:text-[54px]">
+          <span className="bg-brand-warm grid h-28 w-28 place-items-center rounded-full border-4 border-[var(--bg)] text-[42px] font-extrabold sm:h-36 sm:w-36 sm:text-[54px]">
             {user.name.slice(0, 1).toUpperCase()}
           </span>
         </span>

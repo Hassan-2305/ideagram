@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { Bookmark, EyeOff, Flag, Hammer, Heart, MessageCircle, MoreHorizontal, Send, Shuffle, Sparkles, Star } from "lucide-react";
 import { categoryLabel, type Idea } from "@/lib/types";
-import { categoryStyle } from "@/lib/category-style";
 import { CategoryAvatar, CoverArt } from "./cover-art";
 import { ReportDialog, useIdeaActions, type IdeaState } from "./idea-actions";
 import { useApp } from "./providers";
@@ -60,7 +59,7 @@ export function IdeaPost({ idea, state, reason, index = 0, onHidden }: { idea: I
         <div className="min-w-0 flex-1 leading-tight">
           <p className="truncate text-[14px] font-bold text-ink">
             {author(idea)}
-            {idea.sourceKind === "editorial" ? <span className="bg-brand ml-1.5 inline-grid h-3.5 w-3.5 translate-y-[1px] place-items-center rounded-full align-baseline text-[8px] text-white">✓</span> : null}
+            {idea.sourceKind === "editorial" ? <span className="bg-brand ml-1.5 inline-grid h-3.5 w-3.5 translate-y-[1px] place-items-center rounded-full align-baseline text-[8px]">✓</span> : null}
             <span className="font-normal text-ink-3"> · {ago(idea.publishedAt ?? idea.createdAt)}</span>
           </p>
           <p className="truncate text-[12.5px] text-ink-3">{reason && REASON[reason] ? REASON[reason] : sub}</p>
@@ -154,7 +153,7 @@ export function IdeaPost({ idea, state, reason, index = 0, onHidden }: { idea: I
           </button>
         ) : null}
         {idea.stack.length ? (
-          <p className="mt-1.5 line-clamp-1 text-[13.5px] font-medium" style={{ color: categoryStyle(idea.category).from }}>
+          <p className="mt-1.5 line-clamp-1 text-[13.5px] font-medium text-accent-text">
             {idea.stack
               .slice(0, 4)
               .map((s) => `#${s.toLowerCase().replace(/[^a-z0-9]+/g, "")}`)

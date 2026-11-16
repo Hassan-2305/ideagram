@@ -22,7 +22,7 @@ export const viewport: Viewport = {
 
 // Applies the saved theme before paint to avoid a flash.
 // Dark (the glass look) unless the viewer picked light.
-const themeScript = `try{var t=localStorage.getItem("ig.theme");document.documentElement.dataset.theme=t==="light"?"light":"dark"}catch(e){document.documentElement.dataset.theme="dark"}`;
+const themeScript = `(function(){var d=document.documentElement.dataset;d.theme="dark";d.palette="ocean";d.covers="palette";try{var t=localStorage.getItem("ig.theme"),p=localStorage.getItem("ig.palette"),c=localStorage.getItem("ig.covers");if(t==="light")d.theme="light";if(/^(ocean|ember|rose|graphite|aurora)$/.test(p||""))d.palette=p;if(c==="vivid")d.covers="vivid"}catch(e){}})()`;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const user = await getUser();
