@@ -6,9 +6,11 @@ import { getUser } from "@/lib/auth";
 import { getIdea, recordInteraction, relatedIdeas, userStates } from "@/lib/repo/ideas";
 import { lineage } from "@/lib/repo/workspace";
 import { categoryLabel, type Idea } from "@/lib/types";
-import { IdeaCard, Meta, SourceTag } from "@/components/idea-card";
+import { Meta, SourceTag } from "@/components/idea-card";
 import { ButtonLink, Eyebrow } from "@/components/ui";
 import { DetailActions, SimilarIdeas, AddToRemix } from "./client";
+import { CoverArt } from "@/components/cover-art";
+import { IdeaTile } from "@/components/idea-post";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -22,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="border-t border-line py-7">
-      <h2 className="mb-3 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">{title}</h2>
+      <h2 className="mb-3 text-[12px] font-semibold text-ink-3">{title}</h2>
       <div className="text-[16px] leading-[1.7] text-ink-2">{children}</div>
     </section>
   );
@@ -77,9 +79,10 @@ export default async function IdeaPage({ params }: Props) {
         <ArrowLeft size={14} /> Discover
       </Link>
 
+      <CoverArt id={idea.id} title={idea.title} category={idea.category} variant="hero" className="mb-8 aspect-[16/9] w-full rounded-[28px] shadow-card animate-fade-up" />
       <header className="animate-fade-up">
         <div className="flex flex-wrap items-center gap-3">
-          <Link href={`/discover?category=${idea.category}`} className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-text hover:underline">
+          <Link href={`/discover?category=${idea.category}`} className="text-[12px] font-semibold text-accent-text hover:underline">
             {categoryLabel(idea.category)}
           </Link>
           <Meta idea={idea} />
@@ -198,9 +201,9 @@ export default async function IdeaPage({ params }: Props) {
       {related.length ? (
         <section className="mt-14">
           <h2 className="mb-4 text-[17px] font-semibold text-ink">Related in the library</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
             {related.map((r, i) => (
-              <IdeaCard key={r.id} idea={r} state={states[r.id]} index={i} />
+              <IdeaTile key={r.id} idea={r} index={i} />
             ))}
           </div>
         </section>

@@ -11,7 +11,7 @@ import { buttonClass, cx } from "./ui";
 function Block({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="mb-1.5 font-mono text-[10.5px] uppercase tracking-[0.13em] text-ink-3">{label}</p>
+      <p className="mb-1.5 text-[12px] font-semibold text-ink-3">{label}</p>
       <div className="text-[14px] leading-relaxed text-ink-2">{children}</div>
     </div>
   );
@@ -36,7 +36,7 @@ export function GeneratedIdeaCard({ idea, state, index = 0, defaultOpen = false 
     <article className="rounded-2xl border border-line bg-surface shadow-soft animate-fade-up" style={{ animationDelay: `${index * 70}ms` }}>
       <div className="p-5 md:p-6">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-accent-text">{categoryLabel(idea.category)}</span>
+          <span className="text-[12px] font-semibold text-accent-text">{categoryLabel(idea.category)}</span>
           <Meta idea={idea} />
         </div>
         <h3 className="mt-3 font-serif text-[1.7rem] leading-[1.12] text-ink">{idea.title}</h3>

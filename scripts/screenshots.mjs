@@ -14,6 +14,11 @@ const errors = [];
 
 async function session(viewport, theme) {
   const ctx = await browser.newContext({ viewport, colorScheme: theme, deviceScaleFactor: 1 });
+  await ctx.addInitScript((t) => {
+    try {
+      localStorage.setItem("ig.theme", t);
+    } catch {}
+  }, theme);
   const page = await ctx.newPage();
   page.on("pageerror", (e) => errors.push(`${theme} ${viewport.width}: ${e.message}`));
   page.on("console", (m) => m.type() === "error" && errors.push(`${theme} ${viewport.width} console: ${m.text()}`));

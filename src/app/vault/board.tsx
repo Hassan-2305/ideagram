@@ -100,7 +100,7 @@ function ItemRow({
         <input type="checkbox" checked={selected} onChange={onSelect} aria-label={`Select ${item.idea.title}`} className="mt-1.5 h-4 w-4 shrink-0 accent-[var(--accent)]" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-ink-3">{categoryLabel(item.idea.category)}</span>
+            <span className="text-[12px] font-semibold text-ink-3">{categoryLabel(item.idea.category)}</span>
             {item.idea.sourceKind !== "editorial" ? <span className="text-[11px] text-ink-3">· {item.idea.sourceName}</span> : null}
           </div>
           <Link href={`/idea/${item.idea.id}`} className="mt-1 block text-[16px] font-semibold leading-snug text-ink hover:text-accent-text">
@@ -443,7 +443,7 @@ export function VaultBoard({ initialItems, initialCollections, stats }: { initia
     <div className="grid gap-8 lg:grid-cols-[220px_1fr]">
       <aside className="space-y-6 lg:sticky lg:top-20 lg:self-start">
         <div>
-          <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">Status</p>
+          <p className="mb-2 text-[12px] font-semibold text-ink-3">Status</p>
           <div className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto px-1 lg:flex-col">
             {[["", "Active", items.filter((i) => i.status !== "archived").length] as const, ...VAULT_STATUSES.map((s) => [s, s, counts[s] ?? 0] as const)].map(([value, label, n]) => (
               <button
@@ -459,7 +459,7 @@ export function VaultBoard({ initialItems, initialCollections, stats }: { initia
         </div>
         <div>
           <div className="mb-2 flex items-center justify-between">
-            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">Collections</p>
+            <p className="text-[12px] font-semibold text-ink-3">Collections</p>
             <button onClick={() => setNewCollection("")} aria-label="New collection" className="rounded p-1 text-ink-3 hover:text-ink">
               <FolderPlus size={14} />
             </button>
@@ -496,10 +496,10 @@ export function VaultBoard({ initialItems, initialCollections, stats }: { initia
         </div>
         {allTags.length ? (
           <div>
-            <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">Tags</p>
+            <p className="mb-2 text-[12px] font-semibold text-ink-3">Tags</p>
             <div className="flex flex-wrap gap-1.5">
               {allTags.map((t) => (
-                <button key={t} onClick={() => setTag(tag === t ? "" : t)} aria-pressed={tag === t} className={cx("rounded-full px-2.5 py-0.5 text-[12px]", tag === t ? "bg-ink text-bg" : "bg-surface-2 text-ink-2 hover:text-ink")}>
+                <button key={t} onClick={() => setTag(tag === t ? "" : t)} aria-pressed={tag === t} className={cx("rounded-full px-2.5 py-0.5 text-[12px]", tag === t ? "bg-brand text-white" : "bg-surface-2 text-ink-2 hover:text-ink")}>
                   #{t}
                 </button>
               ))}
@@ -507,7 +507,7 @@ export function VaultBoard({ initialItems, initialCollections, stats }: { initia
           </div>
         ) : null}
         <div className="space-y-1.5">
-          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">Export</p>
+          <p className="text-[12px] font-semibold text-ink-3">Export</p>
           <a href={`/api/vault/export${collection ? `?collection=${collection}` : ""}`} className="flex items-center gap-2 text-[13px] text-ink-2 hover:text-ink">
             <Download size={13} /> Markdown{collection ? " (this collection)" : ""}
           </a>

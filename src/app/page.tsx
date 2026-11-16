@@ -1,282 +1,191 @@
 import Link from "next/link";
-import { ArrowRight, Compass, Dumbbell, Flame, FlaskConical, Hammer, Library, Shuffle, Trophy } from "lucide-react";
+import { ArrowRight, Bookmark, Dumbbell, Flame, Hammer, Library, Shuffle, Trophy } from "lucide-react";
 import { getUser } from "@/lib/auth";
 import { featuredIdea, getFeed, getSignals } from "@/lib/repo/feed";
 import { userStates } from "@/lib/repo/ideas";
-import { recentSaves } from "@/lib/repo/vault";
-import { gymStats, listProjects, ownedIdeas, profileStats } from "@/lib/repo/workspace";
+import { gymStats, listProjects, profileStats } from "@/lib/repo/workspace";
 import { computeAffinity } from "@/lib/recommend";
 import { dailyChallenge, KIND_META } from "@/lib/challenges";
 import { refreshInBackground } from "@/lib/ingest";
 import { dayNumber } from "@/lib/time";
 import { CATEGORIES, categoryLabel, type Idea } from "@/lib/types";
-import { IdeaCard, Meta, SourceTag } from "@/components/idea-card";
-import { ButtonLink, Card, Eyebrow, SectionHeader } from "@/components/ui";
+import { CategoryAvatar, CoverArt } from "@/components/cover-art";
+import { HomeFeed } from "@/components/home-feed";
+import { ButtonLink } from "@/components/ui";
 
-
-function Featured({ idea, saved }: { idea: Idea; saved?: boolean }) {
+function Story({ href, label, children, seen }: { href: string; label: string; children: React.ReactNode; seen?: boolean }) {
   return (
-    <Link
-      href={`/idea/${idea.id}`}
-      className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-surface p-7 shadow-soft transition hover:border-line-strong hover:shadow-card md:p-9"
-    >
-      <div className="flex items-center justify-between">
-        <Eyebrow className="text-accent-text">Idea of the day · {categoryLabel(idea.category)}</Eyebrow>
-        {saved ? <span className="text-[12px] text-ink-3">In your vault</span> : null}
-      </div>
-      <h2 className="mt-5 max-w-2xl font-serif text-[2.1rem] leading-[1.06] text-ink transition-colors group-hover:text-accent-text md:text-[2.7rem]">{idea.title}</h2>
-      <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-ink-2">{idea.summary}</p>
-      {idea.insight ? <p className="mt-5 max-w-2xl border-l-2 border-accent pl-4 font-serif text-lg italic leading-snug text-ink">{idea.insight}</p> : null}
-      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-7">
-        <Meta idea={idea} />
-        <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-ink">
-          Read the idea <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
-        </span>
-      </div>
+    <Link href={href} className="group flex w-[74px] shrink-0 flex-col items-center gap-1.5">
+      <span className={seen ? "rounded-full bg-surface-3 p-[2.5px]" : "ring-brand rounded-full p-[2.5px]"}>
+        <span className="grid place-items-center rounded-full bg-bg p-[3px] transition-transform group-hover:scale-105">{children}</span>
+      </span>
+      <span className="w-full truncate text-center text-[11.5px] text-ink-2">{label}</span>
     </Link>
   );
 }
 
-function ChallengeCard({ done, streak }: { done?: boolean; streak?: number }) {
+function StoriesRail({ categories, challengeDone, signedIn }: { categories: string[]; challengeDone?: boolean; signedIn: boolean }) {
   const c = dailyChallenge();
   return (
-    <Link href={`/gym/${c.slug}`} className="group flex h-full flex-col rounded-3xl bg-ink p-7 text-bg shadow-card transition hover:shadow-float">
-      <div className="flex items-center justify-between">
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] opacity-60">Daily challenge</p>
-        {streak ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 font-mono text-[11px]">
-            <Flame size={12} className="text-accent" /> {streak} day{streak === 1 ? "" : "s"}
+    <div className="glass no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 py-4 sm:mx-0 sm:rounded-[28px]">
+      <Story href={`/gym/${c.slug}`} label="Today" seen={challengeDone}>
+        <span className="bg-brand-warm grid h-[60px] w-[60px] place-items-center rounded-full text-white">
+          <Dumbbell size={26} />
+        </span>
+      </Story>
+      {signedIn ? (
+        <Story href="/vault" label="Saved" seen>
+          <span className="grid h-[60px] w-[60px] place-items-center rounded-full bg-surface-3 text-ink">
+            <Bookmark size={24} />
           </span>
-        ) : null}
-      </div>
-      <p className="mt-5 text-[13px] font-medium text-accent">{KIND_META[c.kind].label}</p>
-      <h3 className="mt-1.5 font-serif text-[1.85rem] leading-[1.1]">{c.title}</h3>
-      <p className="mt-3 line-clamp-4 text-[14.5px] leading-relaxed opacity-75">{c.prompt}</p>
-      <span className="mt-auto inline-flex items-center gap-1.5 pt-6 text-[14px] font-medium">
-        {done ? "Done today — try another" : "Think it through"} <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
-      </span>
-    </Link>
-  );
-}
-
-function Grid({ ideas, states }: { ideas: Idea[]; states: ReturnType<typeof userStates> }) {
-  return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {ideas.map((i, n) => (
-        <IdeaCard key={i.id} idea={i} state={states[i.id]} index={n} />
+        </Story>
+      ) : null}
+      <Story href="/hackathon" label="Hackathon">
+        <span className="bg-brand grid h-[60px] w-[60px] place-items-center rounded-full text-white">
+          <Trophy size={24} />
+        </span>
+      </Story>
+      {categories.map((slug) => (
+        <Story key={slug} href={`/discover?category=${slug}`} label={categoryLabel(slug).replace(" & Machine Learning", "").replace(" Technology", "")}>
+          <CategoryAvatar category={slug} size={60} />
+        </Story>
       ))}
     </div>
   );
 }
 
-const See = ({ href, label = "See all" }: { href: string; label?: string }) => (
-  <Link href={href} className="inline-flex shrink-0 items-center gap-1 text-[13px] text-ink-3 hover:text-ink">
-    {label} <ArrowRight size={13} />
-  </Link>
-);
+function MiniIdea({ idea, note }: { idea: Idea; note: string }) {
+  return (
+    <Link href={`/idea/${idea.id}`} className="group flex items-center gap-3 rounded-2xl px-2 py-2 hover:bg-surface-2">
+      <CategoryAvatar category={idea.category} size={42} />
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[13.5px] font-semibold text-ink group-hover:text-accent-text">{idea.title}</span>
+        <span className="block truncate text-[12px] text-ink-3">{note}</span>
+      </span>
+    </Link>
+  );
+}
 
 export default async function Home() {
   const user = await getUser();
   refreshInBackground();
   const uid = user?.id ?? null;
+
+  const feed = getFeed({ userId: uid, sort: "for-you", limit: 6 });
+  const states = userStates(uid, feed.items.map((i) => i.idea.id));
   const featured = featuredIdea(uid);
-  const trending = getFeed({ userId: uid, sort: "popular", limit: 3 }).items.map((x) => x.idea).filter((i) => i.id !== featured?.id);
-  const world = getFeed({ userId: uid, source: "community", sort: "newest", limit: 3 }).items.map((x) => x.idea);
+  const trending = getFeed({ userId: uid, sort: "popular", limit: 4 }).items.map((x) => x.idea);
 
-  if (!user) {
-    const sample = getFeed({ userId: null, source: "editorial", sort: "for-you", limit: 6 }).items.map((x) => x.idea).filter((i) => i.id !== featured?.id).slice(0, 3);
-    const states = userStates(null, [...sample, ...trending, ...world].map((i) => i.id));
-    return (
-      <div className="space-y-16">
-        <section className="pt-4 animate-fade-up md:pt-10">
-          <Eyebrow className="text-accent-text">An alternative to mindless scrolling</Eyebrow>
-          <h1 className="mt-5 max-w-4xl font-serif text-[3.1rem] leading-[0.98] tracking-[-0.015em] text-ink md:text-[5.2rem]">
-            Find an idea worth building. <span className="italic text-ink-3">Then build it.</span>
-          </h1>
-          <p className="mt-6 max-w-2xl text-[17px] leading-relaxed text-ink-2 md:text-lg">
-            Idea Gym shows you real problems and projects from around the world, trains your creative thinking with daily exercises, and turns the idea you pick into a plan — for hackathons, side projects or a startup.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <ButtonLink href="/discover" size="lg">
-              Explore ideas <ArrowRight size={16} />
-            </ButtonLink>
-            <ButtonLink href="/hackathon" size="lg" variant="secondary">
-              <Trophy size={16} /> I&apos;m at a hackathon
-            </ButtonLink>
-          </div>
-          <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-4">
-            {[
-              { icon: Compass, t: "Discover", d: "Curated problems, inventions and projects — with sources." },
-              { icon: Dumbbell, t: "Think", d: "Five kinds of exercises that build creative muscle." },
-              { icon: Shuffle, t: "Remix", d: "Combine ideas into ones nobody has tried." },
-              { icon: Hammer, t: "Build", d: "Requirements, schema, milestones and tasks in one click." },
-            ].map((s) => (
-              <div key={s.t} className="bg-surface p-5">
-                <s.icon size={18} className="text-accent" />
-                <p className="mt-3 text-[15px] font-semibold text-ink">{s.t}</p>
-                <p className="mt-1 text-[13.5px] leading-relaxed text-ink-2">{s.d}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-        <section className="grid gap-4 lg:grid-cols-3">
-          <div className="lg:col-span-2">{featured ? <Featured idea={featured} /> : null}</div>
-          <ChallengeCard />
-        </section>
-        <section>
-          <SectionHeader title="Start here" description="A few ideas from the editorial library." action={<See href="/discover" />} />
-          <Grid ideas={sample} states={states} />
-        </section>
-        {world.length ? (
-          <section>
-            <SectionHeader title="From builders around the world" description="Recent Show HN posts and rising GitHub projects, with attribution." action={<See href="/discover?source=community" />} />
-            <Grid ideas={world} states={states} />
-          </section>
-        ) : null}
-      </div>
-    );
-  }
+  const aff = computeAffinity(getSignals(uid));
+  const preferred = CATEGORIES.map((c) => c.slug).sort((a, b) => (aff[b] ?? 0) - (aff[a] ?? 0));
+  const blind = CATEGORIES.map((c) => c.slug).filter((c) => (aff[c] ?? 0) <= 0);
+  const blindCat = blind.length ? blind[dayNumber() % blind.length] : null;
+  const unexpected = blindCat ? getFeed({ userId: uid, category: blindCat, source: "editorial", sort: "popular", limit: 1 }).items[0]?.idea : undefined;
 
-  // ---------- signed in ----------
-  const gym = gymStats(user.id);
-  const stats = profileStats(user.id);
-  const signals = getSignals(user.id);
-  const aff = computeAffinity(signals);
-  const blindCats = CATEGORIES.map((c) => c.slug).filter((c) => (aff[c] ?? 0) <= 0);
-  const day = dayNumber();
-  const blindCat = blindCats.length ? blindCats[day % blindCats.length] : null;
-  const unexpected = blindCat ? getFeed({ userId: user.id, category: blindCat, source: "editorial", sort: "popular", limit: 1 }).items[0]?.idea : undefined;
-  const forYou = getFeed({ userId: user.id, sort: "for-you", limit: 6 }).items.map((x) => x.idea).filter((i) => i.id !== featured?.id && i.id !== unexpected?.id).slice(0, 3);
-  const mine = ownedIdeas(user.id, "ai", 3);
-  const saves = recentSaves(user.id, 3);
-  const projects = listProjects(user.id).filter((p) => p.status !== "completed").slice(0, 3);
-  const all = [featured, unexpected, ...forYou, ...trending, ...world, ...mine, ...saves].filter((x): x is Idea => !!x);
-  const states = userStates(user.id, all.map((i) => i.id));
-  const firstName = user.name.split(" ")[0];
+  const gym = user ? gymStats(user.id) : null;
+  const stats = user ? profileStats(user.id) : null;
+  const project = user ? listProjects(user.id).find((p) => p.status !== "completed") : undefined;
+  const challenge = dailyChallenge();
 
   return (
-    <div className="space-y-14">
-      <section className="animate-fade-up">
-        <h1 className="font-serif text-[2.6rem] leading-[1.04] text-ink md:text-[3.4rem]">
-          Welcome back, {firstName}.
-        </h1>
-        <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[14px] text-ink-2">
-          {gym.current ? (
-            <span className="inline-flex items-center gap-1.5">
-              <Flame size={15} className="text-accent" /> {gym.current}-day thinking streak
-            </span>
-          ) : (
-            <span>Take today&apos;s challenge to start a thinking streak.</span>
-          )}
-          <span className="text-ink-3">·</span>
-          <span>{stats.saved} saved</span>
-          <span className="text-ink-3">·</span>
-          <span>{stats.remixed} remixed</span>
-          <span className="text-ink-3">·</span>
-          <span>
-            {stats.projectsStarted} project{stats.projectsStarted === 1 ? "" : "s"} started
-          </span>
-        </p>
-      </section>
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[minmax(0,500px)_300px] lg:justify-center xl:gap-14">
+      <div className="mx-auto w-full min-w-0 max-w-[500px] space-y-6 lg:mx-0">
+        <StoriesRail categories={preferred} challengeDone={gym?.todayDone} signedIn={!!user} />
 
-      <section className="grid gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">{featured ? <Featured idea={featured} saved={states[featured.id]?.saved} /> : null}</div>
-        <ChallengeCard done={gym.todayDone} streak={gym.current} />
-      </section>
+        {!user ? (
+          <section className="glass relative overflow-hidden rounded-[28px] p-6 animate-fade-up">
+            <div className="bg-brand pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-40 blur-3xl" />
+            <p className="text-brand text-[13px] font-bold">Scroll less. Build more.</p>
+            <h1 className="mt-2 text-[1.9rem] font-extrabold leading-[1.1] tracking-[-0.03em] text-ink">A feed that makes you sharper, not sleepier.</h1>
+            <p className="mt-3 text-[14.5px] leading-relaxed text-ink-2">
+              Real problems and projects from around the world, daily thinking workouts, and AI that turns the idea you love into a plan.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <ButtonLink href="/signup">Join free</ButtonLink>
+              <ButtonLink href="/hackathon" variant="secondary">
+                <Trophy size={16} /> At a hackathon?
+              </ButtonLink>
+            </div>
+          </section>
+        ) : null}
 
-      {unexpected ? (
-        <section>
-          <SectionHeader title="Discover something unexpected" description={`From ${categoryLabel(unexpected.category)} — a category you haven't explored yet.`} />
-          <Link href={`/idea/${unexpected.id}`} className="group flex flex-col gap-4 rounded-2xl border border-dashed border-line-strong bg-bg-elev p-6 transition hover:border-accent md:flex-row md:items-center">
-            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-accent-soft text-accent-text">
-              <Compass size={22} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[18px] font-semibold text-ink group-hover:text-accent-text">{unexpected.title}</p>
-              <p className="mt-1 line-clamp-2 text-[14px] text-ink-2">{unexpected.summary}</p>
-            </div>
-            <SourceTag idea={unexpected} />
+        {featured ? (
+          <Link href={`/idea/${featured.id}`} className="group relative block overflow-hidden rounded-[28px] shadow-card animate-fade-up">
+            <CoverArt id={featured.id} title={featured.title} category={featured.category} summary={featured.summary} variant="hero" className="aspect-[16/11] w-full transition-transform duration-700 group-hover:scale-[1.02]" />
+            <span className="absolute right-4 top-4 rounded-full border border-white/30 bg-black/20 px-3 py-1 text-[11.5px] font-bold text-white backdrop-blur-md">✦ Idea of the day</span>
           </Link>
-        </section>
-      ) : null}
+        ) : null}
 
-      {projects.length || saves.length ? (
-        <section>
-          <SectionHeader title="Continue where you left off" />
-          <div className="grid gap-4 md:grid-cols-3">
-            {projects.map((p) => (
-              <Link key={p.id} href={`/build/${p.id}`} className="group rounded-2xl border border-line bg-surface p-5 transition hover:border-line-strong hover:shadow-card">
-                <div className="flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-ink-3">
-                    <Hammer size={12} /> {p.status}
-                  </span>
-                  <span className="font-mono text-[12px] text-ink-2">{Math.round(p.progress * 100)}%</span>
-                </div>
-                <p className="mt-3 font-semibold text-ink">{p.title}</p>
-                <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-surface-3">
-                  <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${Math.max(3, p.progress * 100)}%` }} />
-                </div>
-                <p className="mt-2 text-[12.5px] text-ink-3">
-                  {p.tasks.filter((t) => !t.done)[0]?.title ? `Next: ${p.tasks.filter((t) => !t.done)[0].title}` : "All tasks done — mark it complete"}
-                </p>
-              </Link>
-            ))}
-            {projects.length < 3
-              ? saves.slice(0, 3 - projects.length).map((i) => (
-                  <Link key={i.id} href={`/idea/${i.id}`} className="group rounded-2xl border border-line bg-surface p-5 transition hover:border-line-strong hover:shadow-card">
-                    <span className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-ink-3">
-                      <Library size={12} /> Saved · {categoryLabel(i.category)}
-                    </span>
-                    <p className="mt-3 font-semibold text-ink group-hover:text-accent-text">{i.title}</p>
-                    <p className="mt-1.5 line-clamp-2 text-[13.5px] text-ink-2">{i.summary}</p>
-                    <span className="mt-3 inline-flex items-center gap-1 text-[12.5px] text-ink-3">
-                      Turn it into a plan <ArrowRight size={12} />
-                    </span>
-                  </Link>
-                ))
-              : null}
+        <HomeFeed initial={{ items: feed.items, nextCursor: feed.nextCursor, states }} />
+      </div>
+
+      {/* desktop sidebar */}
+      <aside className="hidden lg:block">
+        <div className="sticky top-10 space-y-5">
+          {user && stats ? (
+            <Link href="/profile" className="flex items-center gap-3 px-1">
+              <span className="ring-brand rounded-full p-[2px]">
+                <span className="bg-brand-warm grid h-12 w-12 place-items-center rounded-full border-2 border-[var(--bg)] text-[17px] font-bold text-white">{user.name.slice(0, 1).toUpperCase()}</span>
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-[14.5px] font-bold text-ink">{user.name}</span>
+                <span className="block text-[12.5px] text-ink-3">
+                  {stats.saved} saved · {stats.remixed} remixes · {stats.projectsStarted} projects
+                </span>
+              </span>
+            </Link>
+          ) : null}
+
+          <Link href={`/gym/${challenge.slug}`} className="glass group block overflow-hidden rounded-3xl p-5">
+            <div className="flex items-center justify-between">
+              <span className="text-[12.5px] font-bold text-ink-3">Daily challenge</span>
+              {gym?.current ? (
+                <span className="flex items-center gap-1 rounded-full bg-warn-soft px-2 py-0.5 text-[12px] font-bold text-warn">
+                  <Flame size={13} /> {gym.current}
+                </span>
+              ) : null}
+            </div>
+            <p className="text-brand mt-3 text-[12.5px] font-bold">{KIND_META[challenge.kind].label}</p>
+            <p className="mt-1 text-[16px] font-bold leading-snug text-ink">{challenge.title}</p>
+            <span className="mt-3 inline-flex items-center gap-1 text-[13px] font-semibold text-accent-text">
+              {gym?.todayDone ? "Done today — try another" : "Start thinking"} <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </Link>
+
+          {project ? (
+            <Link href={`/build/${project.id}`} className="glass block rounded-3xl p-5">
+              <span className="flex items-center gap-1.5 text-[12.5px] font-bold text-ink-3">
+                <Hammer size={13} /> Keep building
+              </span>
+              <p className="mt-2 truncate text-[15px] font-bold text-ink">{project.title}</p>
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-3">
+                <div className="bg-brand h-full rounded-full" style={{ width: `${Math.max(4, project.progress * 100)}%` }} />
+              </div>
+            </Link>
+          ) : null}
+
+          <div className="glass rounded-3xl p-3">
+            <p className="px-2 pb-1 pt-1 text-[13px] font-bold text-ink-3">Suggested for you</p>
+            {unexpected ? <MiniIdea idea={unexpected} note={`New to you · ${categoryLabel(unexpected.category)}`} /> : null}
+            {trending
+              .filter((t) => t.id !== unexpected?.id)
+              .slice(0, 3)
+              .map((t) => (
+                <MiniIdea key={t.id} idea={t} note={`Popular · ${t.saveCount} saves`} />
+              ))}
           </div>
-        </section>
-      ) : null}
 
-      <section>
-        <SectionHeader title="Picked for you" description="Based on what you save, remix and build — not on how long you scroll." action={<See href="/discover" />} />
-        <Grid ideas={forYou} states={states} />
-      </section>
-
-      {trending.length ? (
-        <section>
-          <SectionHeader title="Most saved this month" action={<See href="/discover?sort=popular" />} />
-          <Grid ideas={trending.slice(0, 3)} states={states} />
-        </section>
-      ) : null}
-
-      {world.length ? (
-        <section>
-          <SectionHeader title="New from builders around the world" description="Show HN and rising GitHub projects, explained with attribution." action={<See href="/discover?source=community" />} />
-          <Grid ideas={world} states={states} />
-        </section>
-      ) : null}
-
-      <section>
-        <SectionHeader title="Your AI concepts" action={mine.length ? <See href="/discover?source=mine" /> : undefined} />
-        {mine.length ? (
-          <Grid ideas={mine} states={states} />
-        ) : (
-          <Card className="flex flex-col items-start gap-4 p-6 md:flex-row md:items-center">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-surface-2 text-ink-2">
-              <FlaskConical size={20} />
-            </div>
-            <div className="flex-1">
-              <p className="font-semibold text-ink">Generate ideas shaped to your skills and time</p>
-              <p className="mt-0.5 text-[14px] text-ink-2">Set your topic, constraints and style — get structured, buildable concepts with MVP scope and risks.</p>
-            </div>
-            <ButtonLink href="/lab" variant="secondary">
-              Open AI Lab
-            </ButtonLink>
-          </Card>
-        )}
-      </section>
+          <div className="grid grid-cols-2 gap-2">
+            <Link href="/remix" className="glass flex items-center gap-2 rounded-2xl px-3 py-3 text-[13px] font-semibold text-ink hover:bg-surface-3">
+              <Shuffle size={16} className="text-accent" /> Remix
+            </Link>
+            <Link href="/vault" className="glass flex items-center gap-2 rounded-2xl px-3 py-3 text-[13px] font-semibold text-ink hover:bg-surface-3">
+              <Library size={16} className="text-accent" /> Saved
+            </Link>
+          </div>
+          <p className="px-1 text-[11.5px] leading-relaxed text-ink-3">Ranked by what you save, remix and build — never by time spent.</p>
+        </div>
+      </aside>
     </div>
   );
 }

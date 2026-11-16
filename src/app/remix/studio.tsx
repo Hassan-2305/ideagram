@@ -112,7 +112,7 @@ export function RemixStudio({
     <div className="space-y-12">
       <section className="grid gap-6 lg:grid-cols-[1fr_340px]">
         <div className="rounded-3xl border border-line bg-surface p-5 md:p-7">
-          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">Inputs · {picks.length}/4</p>
+          <p className="text-[12px] font-semibold text-ink-3">Inputs · {picks.length}/4</p>
           <div className="mt-4 flex min-h-[120px] flex-wrap items-center gap-3" aria-live="polite">
             {picks.length === 0 ? <p className="text-[14px] text-ink-3">Add ideas from your vault or type any concept — a product, technology, field or problem.</p> : null}
             {picks.map((p, i) => (
@@ -121,7 +121,7 @@ export function RemixStudio({
                 <span className="flex max-w-xs items-center gap-2 rounded-2xl border border-line-strong bg-bg-elev py-2.5 pl-4 pr-2 animate-pop">
                   <span className="min-w-0">
                     <span className="block truncate text-[14px] font-medium text-ink">{p.kind === "idea" ? p.title : p.label}</span>
-                    <span className="block font-mono text-[10.5px] uppercase tracking-wider text-ink-3">{p.kind === "idea" ? categoryLabel(p.category) : "Concept"}</span>
+                    <span className="block text-[12px] font-semibold text-ink-3">{p.kind === "idea" ? categoryLabel(p.category) : "Concept"}</span>
                   </span>
                   <button onClick={() => remove(i)} aria-label={`Remove ${p.kind === "idea" ? p.title : p.label}`} className="rounded-lg p-1 text-ink-3 hover:bg-surface-2 hover:text-ink">
                     <X size={14} />
@@ -235,7 +235,7 @@ export function RemixStudio({
             <Badge tone="accent">
               <Shuffle size={11} /> Remix
             </Badge>
-            <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">{categoryLabel(result.idea.category)}</span>
+            <span className="text-[12px] font-semibold text-ink-3">{categoryLabel(result.idea.category)}</span>
             <Meta idea={result.idea} />
             <Badge tone={result.feasibility === "high" ? "success" : result.feasibility === "low" ? "danger" : "warn"}>Feasibility: {result.feasibility}</Badge>
           </div>
@@ -252,7 +252,7 @@ export function RemixStudio({
             ].map(([label, body]) =>
               body ? (
                 <div key={label as string} className="rounded-2xl bg-bg-elev p-5">
-                  <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.13em] text-accent-text">{label}</p>
+                  <p className="mb-2 text-[12px] font-semibold text-accent-text">{label}</p>
                   <div className="text-[14.5px] leading-relaxed text-ink-2">{body}</div>
                 </div>
               ) : null,

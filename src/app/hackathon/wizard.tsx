@@ -55,10 +55,10 @@ export function HackathonWizard() {
               aria-current={i === step ? "step" : undefined}
               className={cx("flex items-center gap-2 text-[13px]", i === step ? "font-medium text-ink" : i < step ? "text-ink-2" : "text-ink-3")}
             >
-              <span className={cx("grid h-6 w-6 place-items-center rounded-full font-mono text-[11px]", i <= step ? "bg-ink text-bg" : "bg-surface-3 text-ink-3")}>{i + 1}</span>
+              <span className={cx("grid h-6 w-6 place-items-center rounded-full font-mono text-[11px]", i <= step ? "bg-brand text-white" : "bg-surface-3 text-ink-3")}>{i + 1}</span>
               <span className="hidden sm:inline">{s}</span>
             </button>
-            {i < STEPS.length - 1 ? <span className={cx("h-px flex-1", i < step ? "bg-ink" : "bg-line")} /> : null}
+            {i < STEPS.length - 1 ? <span className={cx("h-px flex-1", i < step ? "bg-accent" : "bg-surface-3")} /> : null}
           </li>
         ))}
       </ol>

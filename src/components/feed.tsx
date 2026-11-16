@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { AlignLeft, LayoutGrid, Newspaper, RefreshCw, Search, SlidersHorizontal, X } from "lucide-react";
+import { Grid3x3, RefreshCw, Rows3, Search, SlidersHorizontal, X } from "lucide-react";
 import { api, errorMessage } from "@/lib/client";
 import { CATEGORIES, type Idea } from "@/lib/types";
-import { IdeaCard, IdeaCardSkeleton, type CardVariant } from "./idea-card";
+import { IdeaPost, IdeaPostSkeleton, IdeaTile } from "./idea-post";
+
+type View = "grid" | "feed";
 import type { IdeaState } from "./idea-actions";
 import { useApp } from "./providers";
 import { Button, ButtonLink, Chip, cx, EmptyState, Select } from "./ui";
@@ -44,7 +46,7 @@ export function DiscoverFeed({ initial }: { initial: FeedResponse }) {
   const difficulty = sp.get("difficulty") ?? "";
   const q = sp.get("q") ?? "";
 
-  const [view, setView] = useState<CardVariant>("compact");
+  const [view, setView] = useState<View>("grid");
   const [data, setData] = useState(initial);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -55,16 +57,16 @@ export function DiscoverFeed({ initial }: { initial: FeedResponse }) {
 
   useEffect(() => {
     try {
-      const v = localStorage.getItem(VIEW_KEY) as CardVariant | null;
+      const v = localStorage.getItem(VIEW_KEY) as View | null;
       // Hydration-safe: the server cannot know the saved view, so read it after mount.
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (v === "compact" || v === "detailed" || v === "editorial") setView(v);
+      if (v === "grid" || v === "feed") setView(v);
     } catch {
       /* ignore */
     }
   }, []);
 
-  const changeView = (v: CardVariant) => {
+  const changeView = (v: View) => {
     setView(v);
     try {
       localStorage.setItem(VIEW_KEY, v);
@@ -142,13 +144,13 @@ export function DiscoverFeed({ initial }: { initial: FeedResponse }) {
             setParam("q", query.trim());
           }}
         >
-          <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-3" />
+          <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 z-10 -translate-y-1/2 text-ink-3" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search problems, technologies, ideas…"
             aria-label="Search the feed"
-            className="h-11 w-full rounded-xl border border-line bg-surface pl-10 pr-10 text-[15px] text-ink placeholder:text-ink-3 focus:border-line-strong focus:outline-none"
+            className="glass h-11 w-full rounded-full pl-10 pr-10 text-[15px] text-ink placeholder:text-ink-3 focus:border-line-strong focus:outline-none"
           />
           {q ? (
             <button type="button" onClick={() => setParam("q", "")} aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-ink-3 hover:text-ink">
@@ -157,14 +159,14 @@ export function DiscoverFeed({ initial }: { initial: FeedResponse }) {
           ) : null}
         </form>
         <div className="flex min-w-0 items-center gap-2">
-          <div role="radiogroup" aria-label="Sort" className="no-scrollbar flex min-w-0 flex-1 overflow-x-auto rounded-xl border border-line bg-surface p-1 md:flex-none">
+          <div role="radiogroup" aria-label="Sort" className="glass no-scrollbar flex min-w-0 flex-1 overflow-x-auto rounded-full p-1 md:flex-none">
             {SORTS.map((s) => (
               <button
                 key={s.value}
                 role="radio"
                 aria-checked={sort === s.value}
                 onClick={() => setParam("sort", s.value === "for-you" ? "" : s.value)}
-                className={cx("h-8 shrink-0 whitespace-nowrap rounded-lg px-2.5 text-[13px] transition-colors", sort === s.value ? "bg-surface-3 font-medium text-ink" : "text-ink-3 hover:text-ink")}
+                className={cx("h-8 shrink-0 whitespace-nowrap rounded-full px-3 text-[13px] font-semibold transition-colors", sort === s.value ? "bg-surface-3 text-ink" : "text-ink-3 hover:text-ink")}
               >
                 {s.label}
               </button>
@@ -173,22 +175,21 @@ export function DiscoverFeed({ initial }: { initial: FeedResponse }) {
           <button
             onClick={() => setFiltersOpen((o) => !o)}
             aria-expanded={filtersOpen}
-            className={cx("relative flex h-10 items-center gap-2 rounded-xl border px-3 text-[13px]", filtersOpen || activeFilters ? "border-ink text-ink" : "border-line bg-surface text-ink-2")}
+            className={cx("glass relative flex h-10 shrink-0 items-center gap-2 rounded-full px-3.5 text-[13px] font-semibold", filtersOpen || activeFilters ? "text-ink ring-1 ring-[var(--ring)]" : "text-ink-2")}
           >
             <SlidersHorizontal size={15} />
             <span className="hidden sm:inline">Filters</span>
             {activeFilters ? <span className="grid h-4.5 min-w-4.5 place-items-center rounded-full bg-accent px-1 text-[10px] font-semibold text-accent-ink">{activeFilters}</span> : null}
           </button>
-          <div role="radiogroup" aria-label="Card format" className="hidden rounded-xl border border-line bg-surface p-1 sm:flex">
+          <div role="radiogroup" aria-label="Layout" className="glass flex shrink-0 rounded-full p-1">
             {(
               [
-                ["compact", LayoutGrid, "Compact cards"],
-                ["detailed", AlignLeft, "Detailed cards"],
-                ["editorial", Newspaper, "Editorial reading view"],
+                ["grid", Grid3x3, "Grid"],
+                ["feed", Rows3, "Posts"],
               ] as const
             ).map(([v, Icon, label]) => (
-              <button key={v} role="radio" aria-checked={view === v} aria-label={label} title={label} onClick={() => changeView(v)} className={cx("grid h-8 w-8 place-items-center rounded-lg", view === v ? "bg-surface-3 text-ink" : "text-ink-3 hover:text-ink")}>
-                <Icon size={15} />
+              <button key={v} role="radio" aria-checked={view === v} aria-label={label} title={label} onClick={() => changeView(v)} className={cx("grid h-8 w-8 place-items-center rounded-full transition", view === v ? "bg-brand text-white" : "text-ink-3 hover:text-ink")}>
+                <Icon size={16} />
               </button>
             ))}
           </div>
@@ -196,7 +197,7 @@ export function DiscoverFeed({ initial }: { initial: FeedResponse }) {
       </div>
 
       {filtersOpen ? (
-        <div className="mt-3 grid gap-3 rounded-2xl border border-line bg-surface p-4 animate-fade-in sm:grid-cols-3">
+        <div className="glass mt-3 grid gap-3 rounded-3xl p-4 animate-fade-in sm:grid-cols-3">
           <div>
             <label htmlFor="f-source" className="mb-1.5 block text-[12px] text-ink-3">
               Source
@@ -223,9 +224,6 @@ export function DiscoverFeed({ initial }: { initial: FeedResponse }) {
           <div className="flex items-end gap-2">
             <Button variant="ghost" onClick={() => router.replace(pathname)} className="flex-1">
               Reset all
-            </Button>
-            <Button variant="secondary" className="sm:hidden" onClick={() => changeView(view === "compact" ? "editorial" : "compact")}>
-              {view === "compact" ? "Reading view" : "Card view"}
             </Button>
           </div>
         </div>
@@ -262,11 +260,17 @@ export function DiscoverFeed({ initial }: { initial: FeedResponse }) {
 
       <div className={cx("mt-4", loading && "opacity-60 transition-opacity")}>
         {loading && data.items.length === 0 ? (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <IdeaCardSkeleton key={i} />
-            ))}
-          </div>
+          view === "grid" ? (
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <div key={i} className="skeleton aspect-square rounded-2xl" />
+              ))}
+            </div>
+          ) : (
+            <div className="mx-auto max-w-[500px] space-y-6">
+              <IdeaPostSkeleton />
+            </div>
+          )
         ) : data.items.length === 0 ? (
           <EmptyState
             icon={<Search size={20} />}
@@ -281,16 +285,16 @@ export function DiscoverFeed({ initial }: { initial: FeedResponse }) {
               </div>
             }
           />
-        ) : view === "editorial" ? (
-          <div className="mx-auto max-w-3xl">
+        ) : view === "feed" ? (
+          <div className="mx-auto max-w-[500px] space-y-6">
             {data.items.map((it, i) => (
-              <IdeaCard key={it.idea.id} idea={it.idea} state={data.states[it.idea.id]} variant="editorial" reason={it.reason} index={i} />
+              <IdeaPost key={it.idea.id} idea={it.idea} state={data.states[it.idea.id]} reason={it.reason} index={i} />
             ))}
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-3">
             {data.items.map((it, i) => (
-              <IdeaCard key={it.idea.id} idea={it.idea} state={data.states[it.idea.id]} variant={view} reason={it.reason} index={i} />
+              <IdeaTile key={it.idea.id} idea={it.idea} index={i} />
             ))}
           </div>
         )}

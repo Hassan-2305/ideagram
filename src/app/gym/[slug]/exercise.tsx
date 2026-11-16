@@ -24,7 +24,7 @@ function Feedback({ fb }: { fb: ChallengeFeedback }) {
         <Badge tone={fb.originality === "surprising" ? "success" : fb.originality === "fresh" ? "accent" : "neutral"}>{fb.originality}</Badge>
       </div>
       <div>
-        <p className="mb-1.5 font-mono text-[10.5px] uppercase tracking-[0.13em] text-success">Strengths</p>
+        <p className="mb-1.5 text-[12px] font-semibold text-success">Strengths</p>
         <ul className="space-y-1.5 text-[14px] leading-relaxed text-ink-2">
           {fb.strengths.map((s, i) => (
             <li key={i}>— {s}</li>
@@ -32,7 +32,7 @@ function Feedback({ fb }: { fb: ChallengeFeedback }) {
         </ul>
       </div>
       <div>
-        <p className="mb-1.5 font-mono text-[10.5px] uppercase tracking-[0.13em] text-warn">Blind spots</p>
+        <p className="mb-1.5 text-[12px] font-semibold text-warn">Blind spots</p>
         <ul className="space-y-1.5 text-[14px] leading-relaxed text-ink-2">
           {fb.blindSpots.map((s, i) => (
             <li key={i}>— {s}</li>
@@ -40,7 +40,7 @@ function Feedback({ fb }: { fb: ChallengeFeedback }) {
         </ul>
       </div>
       <div className="rounded-xl bg-surface p-4 md:col-span-2">
-        <p className="mb-1 font-mono text-[10.5px] uppercase tracking-[0.13em] text-accent-text">Push further</p>
+        <p className="mb-1 text-[12px] font-semibold text-accent-text">Push further</p>
         <p className="font-serif text-lg italic leading-snug text-ink">{fb.pushFurther}</p>
       </div>
       {fb.thinkingPatterns.length ? (
@@ -175,7 +175,7 @@ export function Exercise({ challenge, signedIn, past }: Props) {
         <div className="animate-fade-up">
           <div className="rounded-2xl border border-line bg-surface p-5">
             <div className="flex items-center justify-between">
-              <p className="font-mono text-[11px] uppercase tracking-[0.13em] text-ink-3">Your answer</p>
+              <p className="text-[12px] font-semibold text-ink-3">Your answer</p>
               {result.streak ? (
                 <span className="inline-flex items-center gap-1 text-[12.5px] text-accent-text">
                   <Flame size={13} /> {result.streak}-day streak

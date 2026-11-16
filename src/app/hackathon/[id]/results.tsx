@@ -35,7 +35,7 @@ function ScoreBar({ value }: { value: number }) {
 function Detail({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="mb-2 font-mono text-[10.5px] uppercase tracking-[0.13em] text-ink-3">{label}</p>
+      <p className="mb-2 text-[12px] font-semibold text-ink-3">{label}</p>
       <div className="text-[14px] leading-relaxed text-ink-2">{children}</div>
     </div>
   );
@@ -92,7 +92,7 @@ export function HackathonResults({ sessionId, ideas, initialShortlist }: { sessi
           <table className="w-full min-w-[640px] text-left text-[13.5px]">
             <thead>
               <tr className="border-b border-line">
-                <th className="w-44 p-4 font-mono text-[11px] font-normal uppercase tracking-wider text-ink-3">Criterion</th>
+                <th className="w-44 p-4 text-[12px] font-semibold text-ink-3">Criterion</th>
                 {listed.map((r) => (
                   <th key={r.index} className="p-4 align-bottom font-semibold text-ink">
                     {r.idea.title}
@@ -151,7 +151,7 @@ export function HackathonResults({ sessionId, ideas, initialShortlist }: { sessi
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-[11px] uppercase tracking-wider text-ink-3">{categoryLabel(idea.category)}</span>
+                      <span className="text-[12px] font-semibold text-ink-3">{categoryLabel(idea.category)}</span>
                       <Badge>{idea.difficulty}</Badge>
                       <span className="font-mono text-[12px] text-accent-text sm:hidden">
                         #{rank + 1} · {score.toFixed(1)}

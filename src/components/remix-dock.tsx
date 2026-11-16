@@ -12,8 +12,8 @@ export function RemixDock() {
   const pathname = usePathname();
   if (tray.length === 0 || pathname.startsWith("/remix")) return null;
   return (
-    <div className="fixed inset-x-0 bottom-[76px] z-40 flex justify-center px-3 lg:bottom-6 lg:pl-60">
-      <div className="flex max-w-full items-center gap-2 rounded-2xl border border-line bg-surface p-2 pl-3 shadow-float animate-sheet">
+    <div className="fixed inset-x-0 bottom-[84px] z-40 flex justify-center px-3 md:bottom-6 md:pl-[76px] xl:pl-[244px]">
+      <div className="glass-strong flex max-w-full items-center gap-2 rounded-full p-2 pl-4 shadow-float animate-sheet">
         <Shuffle size={16} className="shrink-0 text-accent" />
         <div className="no-scrollbar flex min-w-0 gap-1.5 overflow-x-auto">
           {tray.map((t) => (

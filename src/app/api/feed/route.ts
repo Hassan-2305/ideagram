@@ -20,7 +20,7 @@ export const GET = publicRoute(async ({ req, user }) => {
     difficulty: difficulty && (DIFFICULTIES as readonly string[]).includes(difficulty) ? difficulty : null,
     q: sp.get("q")?.slice(0, 120) ?? null,
     cursor: Math.trunc(Number(sp.get("cursor") ?? 0)) || 0,
-    limit: Math.trunc(Number(sp.get("limit") ?? 12)) || 12,
+    limit: Math.trunc(Number(sp.get("limit") ?? 18)) || 18,
   });
   const states = userStates(user?.id ?? null, page.items.map((i) => i.idea.id));
   return json({ ...page, states });

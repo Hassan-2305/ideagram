@@ -20,7 +20,7 @@ export default async function HackathonSessionPage({ params }: { params: Promise
         <ArrowLeft size={14} /> Hackathon Mode
       </Link>
       <header className="mb-8 animate-fade-up">
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">
+        <p className="text-[12px] font-semibold text-ink-3">
           {inp.hours} hours · team of {inp.teamSize}
           {inp.skills ? ` · ${inp.skills}` : ""}
         </p>

@@ -34,7 +34,7 @@ export default async function HackathonPage() {
       <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
         <HackathonWizard />
         <aside>
-          <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">Past sessions</p>
+          <p className="mb-3 text-[12px] font-semibold text-ink-3">Past sessions</p>
           {sessions.length ? (
             <ul className="space-y-2">
               {sessions.map((s) => (

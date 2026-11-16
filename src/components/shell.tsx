@@ -13,6 +13,7 @@ import {
   LogOut,
   Menu,
   Moon,
+  PlusSquare,
   Search,
   Settings,
   Shuffle,
@@ -21,23 +22,23 @@ import {
   User,
   X,
 } from "lucide-react";
-import { buttonClass, cx, Kbd } from "./ui";
+import { buttonClass, cx } from "./ui";
 import { useApp } from "./providers";
 import { CommandSearch } from "./command-search";
 import { RemixDock } from "./remix-dock";
 
-const NAV = [
+type NavItem = { href: string; label: string; icon: typeof Home };
+
+const NAV: NavItem[] = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/discover", label: "Discover", icon: Compass },
-  { href: "/lab", label: "AI Lab", icon: FlaskConical },
+  { href: "/discover", label: "Explore", icon: Compass },
+  { href: "/lab", label: "Create", icon: PlusSquare },
   { href: "/remix", label: "Remix", icon: Shuffle },
   { href: "/hackathon", label: "Hackathon", icon: Trophy },
   { href: "/gym", label: "Thinking Gym", icon: Dumbbell },
-  { href: "/vault", label: "Idea Vault", icon: Library },
-  { href: "/build", label: "Build Mode", icon: Hammer },
+  { href: "/vault", label: "Saved", icon: Library },
+  { href: "/build", label: "Build", icon: Hammer },
 ];
-
-const MOBILE_TABS = ["/", "/discover", "/lab", "/gym", "/vault"];
 
 function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/");
@@ -46,24 +47,34 @@ function isActive(pathname: string, href: string) {
 export function Logo({ compact }: { compact?: boolean }) {
   return (
     <span className="flex items-center gap-2.5">
-      <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden>
-        <rect x="1" y="1" width="30" height="30" rx="9" fill="var(--text)" />
-        <circle cx="16" cy="13" r="5.2" fill="none" stroke="var(--bg)" strokeWidth="2.4" />
-        <path d="M13.2 21.5h5.6M14 25h4" stroke="var(--bg)" strokeWidth="2.2" strokeLinecap="round" />
-        <circle cx="16" cy="13" r="1.8" fill="var(--accent)" />
-      </svg>
-      {compact ? null : <span className="text-[15px] font-semibold tracking-tight text-ink">Idea Gym</span>}
+      <span className="bg-brand grid h-9 w-9 shrink-0 place-items-center rounded-[12px] shadow-[0_8px_20px_-6px_rgba(124,58,237,0.7)]">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.2 1.1 2V17h5v-1.2c0-.8.4-1.5 1.1-2A6 6 0 0 0 12 3Z" stroke="white" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M10 20.5h4" stroke="white" strokeWidth="2" strokeLinecap="round" />
+          <circle cx="12" cy="9" r="1.6" fill="white" />
+        </svg>
+      </span>
+      {compact ? null : <span className="text-brand text-[21px] font-extrabold tracking-[-0.03em]">ideagym</span>}
     </span>
   );
 }
 
-function ThemeToggle() {
-  const [theme, setTheme] = useState<"light" | "dark" | null>(null);
+function Avatar({ name, size = 28, active }: { name: string; size?: number; active?: boolean }) {
+  return (
+    <span className={cx("grid shrink-0 place-items-center rounded-full p-[2px]", active ? "ring-brand" : "bg-transparent")} style={{ width: size + 4, height: size + 4 }}>
+      <span className="bg-brand-warm grid place-items-center rounded-full text-[12px] font-bold text-white" style={{ width: size, height: size }}>
+        {name.slice(0, 1).toUpperCase()}
+      </span>
+    </span>
+  );
+}
+
+function useTheme() {
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
   useEffect(() => {
-    const t = document.documentElement.dataset.theme as "light" | "dark" | undefined;
     // Hydration-safe: the effective theme is only known in the browser.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTheme(t ?? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+    setTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark");
   }, []);
   const flip = () => {
     const next = theme === "dark" ? "light" : "dark";
@@ -75,72 +86,31 @@ function ThemeToggle() {
     }
     setTheme(next);
   };
-  return (
-    <button onClick={flip} className={buttonClass("ghost", "icon")} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}>
-      {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
-    </button>
-  );
+  return { theme, flip };
 }
 
-function UserMenu() {
-  const { user } = useApp();
-  const router = useRouter();
-  const [open, setOpen] = useState(false);
-  if (!user)
-    return (
-      <div className="flex items-center gap-1.5">
-        <Link href="/login" className={buttonClass("ghost", "sm")}>
-          Sign in
-        </Link>
-        <Link href="/signup" className={buttonClass("primary", "sm")}>
-          Join free
-        </Link>
-      </div>
-    );
-  const logout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/");
-    router.refresh();
-  };
+function SideLink({ item, active, onClick }: { item: NavItem; active: boolean; onClick?: () => void }) {
   return (
-    <div className="relative">
-      <button
-        onClick={() => setOpen((o) => !o)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        className="grid h-9 w-9 place-items-center rounded-full bg-surface-3 text-[13px] font-semibold text-ink transition hover:ring-2 hover:ring-line-strong"
-      >
-        {user.name.slice(0, 1).toUpperCase()}
-      </button>
-      {open ? (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div role="menu" className="absolute right-0 z-50 mt-2 w-56 rounded-xl border border-line bg-surface p-1.5 shadow-float animate-pop">
-            <div className="px-3 py-2">
-              <p className="truncate text-sm font-medium text-ink">{user.name}</p>
-              <p className="truncate text-xs text-ink-3">{user.email}</p>
-            </div>
-            <div className="my-1 h-px bg-line" />
-            {[
-              { href: "/profile", label: "Creativity profile", icon: User },
-              { href: "/settings", label: "Settings", icon: Settings },
-            ].map((x) => (
-              <Link key={x.href} role="menuitem" href={x.href} onClick={() => setOpen(false)} className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-ink-2 hover:bg-surface-2 hover:text-ink">
-                <x.icon size={15} /> {x.label}
-              </Link>
-            ))}
-            <button role="menuitem" onClick={logout} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-ink-2 hover:bg-surface-2 hover:text-ink">
-              <LogOut size={15} /> Sign out
-            </button>
-          </div>
-        </>
-      ) : null}
-    </div>
+    <Link
+      href={item.href}
+      onClick={onClick}
+      aria-current={active ? "page" : undefined}
+      className={cx(
+        "group flex h-12 items-center gap-4 rounded-2xl px-3 text-[15px] transition-all",
+        active ? "glass font-bold text-ink" : "text-ink-2 hover:bg-surface-2 hover:text-ink",
+      )}
+    >
+      <item.icon size={24} strokeWidth={active ? 2.4 : 1.8} className={cx("transition-transform group-hover:scale-110", active && "text-accent")} />
+      <span className="hidden xl:inline">{item.label}</span>
+    </Link>
   );
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user } = useApp();
+  const { theme, flip } = useTheme();
   const [searchOpen, setSearchOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
 
@@ -158,109 +128,169 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  const logout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    setMoreOpen(false);
+    router.push("/");
+    router.refresh();
+  };
 
   const bare = pathname === "/login" || pathname === "/signup";
   if (bare) return <>{children}</>;
 
+  const profileActive = isActive(pathname, "/profile");
+
   return (
     <div className="min-h-dvh">
-      <a href="#main" className="sr-only z-[90] rounded-lg bg-ink px-3 py-2 text-bg focus:not-sr-only focus:fixed focus:left-3 focus:top-3">
+      <a href="#main" className="sr-only z-[90] rounded-full bg-ink px-4 py-2 text-bg focus:not-sr-only focus:fixed focus:left-3 focus:top-3">
         Skip to content
       </a>
-      {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-line bg-bg-elev px-3 py-4 lg:flex">
-        <Link href="/" className="mb-6 px-2.5 py-1">
-          <Logo />
+
+      {/* Desktop / tablet side rail */}
+      <aside className="glass-strong fixed inset-y-0 left-0 z-30 hidden w-[76px] flex-col border-y-0 border-l-0 px-3 py-6 md:flex xl:w-[244px]">
+        <Link href="/" className="mb-8 px-2" aria-label="Idea Gym home">
+          <span className="xl:hidden">
+            <Logo compact />
+          </span>
+          <span className="hidden xl:inline">
+            <Logo />
+          </span>
         </Link>
-        <nav aria-label="Primary" className="flex flex-col gap-0.5">
-          {NAV.map((n) => {
-            const active = isActive(pathname, n.href);
-            return (
-              <Link
-                key={n.href}
-                href={n.href}
-                aria-current={active ? "page" : undefined}
-                className={cx(
-                  "group flex h-9 items-center gap-3 rounded-lg px-2.5 text-[14px] transition-colors",
-                  active ? "bg-surface-3/70 font-medium text-ink" : "text-ink-2 hover:bg-surface-2 hover:text-ink",
-                )}
-              >
-                <n.icon size={17} className={cx(active ? "text-accent" : "text-ink-3 group-hover:text-ink-2")} strokeWidth={active ? 2.2 : 1.8} />
-                {n.label}
-              </Link>
-            );
-          })}
+        <nav aria-label="Primary" className="flex flex-col gap-1">
+          <button onClick={() => setSearchOpen(true)} className="group flex h-12 items-center gap-4 rounded-2xl px-3 text-[15px] text-ink-2 transition-all hover:bg-surface-2 hover:text-ink">
+            <Search size={24} strokeWidth={1.8} className="transition-transform group-hover:scale-110" />
+            <span className="hidden xl:inline">Search</span>
+          </button>
+          {NAV.map((n) => (
+            <SideLink key={n.href} item={n} active={isActive(pathname, n.href)} />
+          ))}
+          {user ? (
+            <Link
+              href="/profile"
+              aria-current={profileActive ? "page" : undefined}
+              className={cx("group flex h-12 items-center gap-4 rounded-2xl px-2.5 text-[15px] transition-all", profileActive ? "glass font-bold text-ink" : "text-ink-2 hover:bg-surface-2 hover:text-ink")}
+            >
+              <Avatar name={user.name} size={26} active={profileActive} />
+              <span className="hidden xl:inline">Profile</span>
+            </Link>
+          ) : null}
         </nav>
-        <div className="mt-auto rounded-xl border border-line bg-surface p-3.5">
-          <p className="text-[13px] font-medium text-ink">Discover → Think → Build</p>
-          <p className="mt-1 text-[12px] leading-relaxed text-ink-3">Save what sparks you, train with a daily challenge, then turn one idea into a plan.</p>
+        <div className="mt-auto flex flex-col gap-1">
+          <button onClick={flip} className="group flex h-12 items-center gap-4 rounded-2xl px-3 text-[15px] text-ink-2 hover:bg-surface-2 hover:text-ink" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}>
+            {theme === "dark" ? <Sun size={24} strokeWidth={1.8} /> : <Moon size={24} strokeWidth={1.8} />}
+            <span className="hidden xl:inline">{theme === "dark" ? "Light mode" : "Dark mode"}</span>
+          </button>
+          {user ? (
+            <>
+              <SideLink item={{ href: "/settings", label: "Settings", icon: Settings }} active={isActive(pathname, "/settings")} />
+              <button onClick={logout} className="group flex h-12 items-center gap-4 rounded-2xl px-3 text-[15px] text-ink-2 hover:bg-surface-2 hover:text-ink">
+                <LogOut size={24} strokeWidth={1.8} />
+                <span className="hidden xl:inline">Sign out</span>
+              </button>
+            </>
+          ) : (
+            <div className="hidden flex-col gap-2 xl:flex">
+              <Link href="/signup" className={buttonClass("primary", "md")}>
+                Join free
+              </Link>
+              <Link href="/login" className={buttonClass("secondary", "md")}>
+                Sign in
+              </Link>
+            </div>
+          )}
         </div>
       </aside>
 
-      {/* Top bar */}
-      <header className="sticky top-0 z-20 border-b border-line/70 bg-bg/80 backdrop-blur-md lg:pl-60">
-        <div className="mx-auto flex h-14 max-w-[1200px] items-center gap-3 px-4 md:px-8">
-          <Link href="/" className="lg:hidden" aria-label="Idea Gym home">
+      {/* Mobile top bar */}
+      <header className="glass-strong sticky top-0 z-30 border-x-0 border-t-0 md:hidden">
+        <div className="flex h-14 items-center gap-2 px-4">
+          <Link href="/" aria-label="Idea Gym home">
             <Logo />
           </Link>
-          <button
-            onClick={() => setSearchOpen(true)}
-            className="ml-auto flex h-9 items-center gap-2.5 rounded-xl border border-line bg-surface px-3 text-sm text-ink-3 transition hover:border-line-strong lg:ml-0 lg:w-80"
-            aria-label="Search ideas"
-          >
-            <Search size={15} />
-            <span className="hidden lg:inline">Search ideas, problems, tech…</span>
-            <span className="ml-auto hidden items-center gap-1 lg:flex">
-              <Kbd>Ctrl</Kbd>
-              <Kbd>K</Kbd>
-            </span>
-          </button>
-          <div className="flex items-center gap-1 lg:ml-auto">
-            <ThemeToggle />
-            <UserMenu />
+          <div className="ml-auto flex items-center gap-1">
+            <button onClick={() => setSearchOpen(true)} className={buttonClass("ghost", "icon", "h-10 w-10")} aria-label="Search">
+              <Search size={22} />
+            </button>
+            <button onClick={flip} className={buttonClass("ghost", "icon", "h-10 w-10")} aria-label="Toggle theme">
+              {theme === "dark" ? <Sun size={21} /> : <Moon size={21} />}
+            </button>
+            {!user ? (
+              <Link href="/signup" className={buttonClass("primary", "sm")}>
+                Join
+              </Link>
+            ) : null}
           </div>
         </div>
       </header>
 
-      <main id="main" className="lg:pl-60">
-        <div className="mx-auto max-w-[1200px] px-4 pb-32 pt-6 md:px-8 md:pt-10 lg:pb-20">{children}</div>
+      <main id="main" className="md:pl-[76px] xl:pl-[244px]">
+        <div className="mx-auto max-w-[1080px] px-4 pb-32 pt-5 md:px-8 md:pb-16 md:pt-10">{children}</div>
       </main>
 
       {/* Mobile tab bar */}
-      <nav aria-label="Primary" className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden">
-        <div className="mx-auto grid max-w-md grid-cols-6">
-          {NAV.filter((n) => MOBILE_TABS.includes(n.href)).map((n) => {
-            const active = isActive(pathname, n.href);
-            return (
-              <Link key={n.href} href={n.href} aria-current={active ? "page" : undefined} className={cx("flex flex-col items-center gap-1 py-2.5 text-[10.5px]", active ? "text-ink" : "text-ink-3")}>
-                <n.icon size={20} strokeWidth={active ? 2.2 : 1.7} className={active ? "text-accent" : ""} />
-                {n.label.replace("Thinking ", "").replace("Idea ", "")}
-              </Link>
-            );
-          })}
-          <button onClick={() => setMoreOpen(true)} className="flex flex-col items-center gap-1 py-2.5 text-[10.5px] text-ink-3" aria-haspopup="dialog">
-            <Menu size={20} strokeWidth={1.7} />
-            More
+      <nav aria-label="Primary" className="glass-strong fixed inset-x-0 bottom-0 z-40 border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)] md:hidden">
+        <div className="mx-auto grid h-16 max-w-md grid-cols-5 items-center">
+          {[
+            { href: "/", label: "Home", icon: Home },
+            { href: "/discover", label: "Explore", icon: Compass },
+          ].map((n) => (
+            <Link key={n.href} href={n.href} aria-label={n.label} aria-current={isActive(pathname, n.href) ? "page" : undefined} className="grid place-items-center py-2">
+              <n.icon size={26} strokeWidth={isActive(pathname, n.href) ? 2.5 : 1.8} className={isActive(pathname, n.href) ? "text-ink" : "text-ink-3"} />
+            </Link>
+          ))}
+          <Link href="/lab" aria-label="Create ideas" className="grid place-items-center">
+            <span className="bg-brand grid h-11 w-11 place-items-center rounded-2xl text-white shadow-[0_8px_22px_-6px_rgba(124,58,237,0.8)]">
+              <FlaskConical size={22} />
+            </span>
+          </Link>
+          <Link href="/gym" aria-label="Thinking Gym" aria-current={isActive(pathname, "/gym") ? "page" : undefined} className="grid place-items-center py-2">
+            <Dumbbell size={26} strokeWidth={isActive(pathname, "/gym") ? 2.5 : 1.8} className={isActive(pathname, "/gym") ? "text-ink" : "text-ink-3"} />
+          </Link>
+          <button onClick={() => setMoreOpen(true)} aria-label="Profile and more" aria-haspopup="dialog" className="grid place-items-center py-2">
+            {user ? <Avatar name={user.name} size={26} active={profileActive} /> : <Menu size={26} strokeWidth={1.8} className="text-ink-3" />}
           </button>
         </div>
       </nav>
 
       {moreOpen ? (
-        <div className="fixed inset-0 z-[60] bg-black/40 animate-fade-in lg:hidden" onClick={() => setMoreOpen(false)}>
-          <div role="dialog" aria-modal="true" aria-label="More navigation" className="absolute inset-x-0 bottom-0 rounded-t-3xl border-t border-line bg-surface p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] shadow-float animate-sheet" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm animate-fade-in md:hidden" onClick={() => setMoreOpen(false)}>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="More"
+            className="glass-strong absolute inset-x-0 bottom-0 rounded-t-[28px] p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] animate-sheet"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-surface-3" />
             <div className="mb-3 flex items-center justify-between px-1">
-              <p className="text-sm font-semibold text-ink">More</p>
+              {user ? (
+                <Link href="/profile" onClick={() => setMoreOpen(false)} className="flex items-center gap-3">
+                  <Avatar name={user.name} size={40} active />
+                  <span>
+                    <span className="block text-[15px] font-bold text-ink">{user.name}</span>
+                    <span className="block text-[12.5px] text-ink-3">View profile</span>
+                  </span>
+                </Link>
+              ) : (
+                <p className="text-[15px] font-bold text-ink">More</p>
+              )}
               <button onClick={() => setMoreOpen(false)} className={buttonClass("ghost", "icon")} aria-label="Close">
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              {[...NAV.filter((n) => !MOBILE_TABS.includes(n.href)), { href: "/profile", label: "Profile", icon: User }, { href: "/settings", label: "Settings", icon: Settings }].map((n) => (
-                <Link key={n.href} href={n.href} onClick={() => setMoreOpen(false)} className="flex items-center gap-3 rounded-xl border border-line bg-bg-elev px-3.5 py-3.5 text-sm text-ink">
-                  <n.icon size={18} className="text-ink-2" />
+            <div className="grid grid-cols-3 gap-2">
+              {[...NAV.filter((n) => !["/", "/discover", "/lab", "/gym"].includes(n.href)), ...(user ? [{ href: "/settings", label: "Settings", icon: Settings }] : []), ...(user ? [] : [{ href: "/login", label: "Sign in", icon: User }])].map((n) => (
+                <Link key={n.href} href={n.href} onClick={() => setMoreOpen(false)} className="glass flex flex-col items-center gap-2 rounded-2xl px-2 py-4 text-[12.5px] font-medium text-ink">
+                  <n.icon size={22} className="text-accent" />
                   {n.label}
                 </Link>
               ))}
+              {user ? (
+                <button onClick={logout} className="glass flex flex-col items-center gap-2 rounded-2xl px-2 py-4 text-[12.5px] font-medium text-ink">
+                  <LogOut size={22} className="text-ink-3" />
+                  Sign out
+                </button>
+              ) : null}
             </div>
           </div>
         </div>

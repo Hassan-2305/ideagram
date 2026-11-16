@@ -32,8 +32,8 @@ export default async function GymPage({ searchParams }: { searchParams: Promise<
       />
 
       <section className="grid gap-4 lg:grid-cols-3">
-        <Link href={`/gym/${today.slug}`} className="group flex flex-col rounded-3xl bg-ink p-7 text-bg shadow-card transition hover:shadow-float lg:col-span-2 md:p-9">
-          <p className="font-mono text-[11px] uppercase tracking-[0.14em] opacity-60">Today · {KIND_META[today.kind].label}</p>
+        <Link href={`/gym/${today.slug}`} className="group flex flex-col rounded-3xl bg-brand-warm p-7 text-white shadow-card transition hover:shadow-float lg:col-span-2 md:p-9">
+          <p className="text-[12px] font-semibold opacity-60">Today · {KIND_META[today.kind].label}</p>
           <h2 className="mt-4 font-serif text-[2.2rem] leading-[1.08] md:text-[2.6rem]">{today.title}</h2>
           <p className="mt-3 max-w-2xl text-[15px] leading-relaxed opacity-75">{today.prompt}</p>
           <span className="mt-auto inline-flex items-center gap-1.5 pt-6 text-[14px] font-medium">
@@ -127,7 +127,7 @@ export default async function GymPage({ searchParams }: { searchParams: Promise<
           {library.map((c) => (
             <Link key={c.slug} href={`/gym/${c.slug}`} className="group flex flex-col rounded-2xl border border-line bg-surface p-5 transition hover:-translate-y-0.5 hover:border-line-strong hover:shadow-card">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-ink-3">{KIND_META[c.kind].label}</span>
+                <span className="text-[12px] font-semibold text-ink-3">{KIND_META[c.kind].label}</span>
                 {done.has(c.slug) ? (
                   <span className="inline-flex items-center gap-1 text-[11.5px] text-success">
                     <Check size={12} /> Done

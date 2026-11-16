@@ -31,7 +31,7 @@ interface Project {
 const TABS = ["Tasks", "Product", "Technical", "Ship"] as const;
 
 function H({ children }: { children: React.ReactNode }) {
-  return <h3 className="mb-3 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">{children}</h3>;
+  return <h3 className="mb-3 text-[12px] font-semibold text-ink-3">{children}</h3>;
 }
 
 function toMarkdown(p: Project): string {
@@ -329,7 +329,7 @@ export function ProjectWorkspace({ initial }: { initial: Project }) {
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {p.plan.stack.map((s, i) => (
                   <div key={i} className="rounded-xl border border-line bg-surface p-4">
-                    <p className="font-mono text-[10.5px] uppercase tracking-wider text-ink-3">{s.layer}</p>
+                    <p className="text-[12px] font-semibold text-ink-3">{s.layer}</p>
                     <p className="mt-1 font-semibold text-ink">{s.choice}</p>
                     <p className="mt-1 text-[13px] leading-relaxed text-ink-2">{s.why}</p>
                   </div>

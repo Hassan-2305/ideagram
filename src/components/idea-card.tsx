@@ -32,7 +32,7 @@ export function SourceTag({ idea, className }: { idea: Pick<Idea, "sourceKind" |
 
 export function Meta({ idea }: { idea: Pick<Idea, "difficulty" | "buildTime"> }) {
   return (
-    <span className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-wide text-ink-3">
+    <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] font-semibold text-ink-3">
       <span className="inline-flex items-center gap-1">
         <Gauge size={12} /> {idea.difficulty}
       </span>
@@ -69,7 +69,7 @@ export function IdeaCard({
     return (
       <article className="group border-b border-line py-10 first:pt-2 animate-fade-up" style={{ animationDelay: `${Math.min(index, 6) * 40}ms` }}>
         <div className="mb-4 flex flex-wrap items-center gap-3">
-          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-text">{categoryLabel(idea.category)}</span>
+          <span className="text-[12px] font-semibold text-accent-text">{categoryLabel(idea.category)}</span>
           {reasonLabel ? <Badge tone={reason === "explore" ? "accent" : "neutral"}>{reasonLabel === "Blind spot" ? <Compass size={11} /> : null}{reasonLabel}</Badge> : null}
           <Meta idea={idea} />
         </div>
@@ -83,12 +83,12 @@ export function IdeaCard({
         {idea.problem ? (
           <div className="mt-6 grid max-w-3xl gap-6 text-[15px] leading-relaxed md:grid-cols-2">
             <div>
-              <p className="mb-1.5 font-mono text-[11px] uppercase tracking-wider text-ink-3">The problem</p>
+              <p className="mb-1.5 text-[12px] font-semibold text-ink-3">The problem</p>
               <p className="text-ink-2">{idea.problem}</p>
             </div>
             {idea.solution ? (
               <div>
-                <p className="mb-1.5 font-mono text-[11px] uppercase tracking-wider text-ink-3">The approach</p>
+                <p className="mb-1.5 text-[12px] font-semibold text-ink-3">The approach</p>
                 <p className="text-ink-2">{idea.solution}</p>
               </div>
             ) : null}
@@ -109,7 +109,7 @@ export function IdeaCard({
       style={{ animationDelay: `${Math.min(index, 8) * 35}ms` }}
     >
       <div className="mb-3 flex items-center justify-between gap-2">
-        <span className="truncate font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">{categoryLabel(idea.category)}</span>
+        <span className="truncate text-[12px] font-semibold text-ink-3">{categoryLabel(idea.category)}</span>
         {reasonLabel ? (
           <Badge tone={reason === "explore" ? "accent" : "neutral"}>
             {reason === "explore" ? <Compass size={11} /> : null}

@@ -28,7 +28,7 @@ export default async function ExercisePage({ params }: Props) {
         <ArrowLeft size={14} /> Thinking Gym
       </Link>
       <header className="animate-fade-up">
-        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-text">
+        <p className="text-[12px] font-semibold text-accent-text">
           {KIND_META[c.kind].label} · {categoryLabel(c.category)}
         </p>
         <h1 className="mt-4 font-serif text-[2.5rem] leading-[1.05] text-ink md:text-[3.2rem]">{c.title}</h1>

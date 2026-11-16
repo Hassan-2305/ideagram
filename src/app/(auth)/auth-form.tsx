@@ -43,7 +43,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           <Logo />
         </Link>
         <div className="my-auto max-w-md">
-          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-text">Discover → Think → Remix → Build</p>
+          <p className="text-[12px] font-semibold text-accent-text">Discover → Think → Remix → Build</p>
           <h1 className="mt-5 font-serif text-[3.4rem] leading-[1.02] text-ink">Swap the scroll for a sharper mind.</h1>
           <p className="mt-5 text-[16px] leading-relaxed text-ink-2">
             Real problems worth solving, projects from builders around the world, daily thinking exercises, and AI that turns a spark into a plan you can start tonight.

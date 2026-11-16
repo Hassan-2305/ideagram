@@ -63,7 +63,7 @@ export default async function BuildPage() {
               <li key={v.idea.id}>
                 <Link href={`/build/new?idea=${v.idea.id}`} className="group flex items-center gap-4 rounded-2xl border border-line bg-surface p-4 transition hover:border-line-strong">
                   <div className="min-w-0 flex-1">
-                    <p className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-ink-3">
+                    <p className="text-[12px] font-semibold text-ink-3">
                       {categoryLabel(v.idea.category)} · {v.status}
                     </p>
                     <p className="mt-1 truncate font-semibold text-ink">{v.idea.title}</p>

@@ -125,7 +125,7 @@ export function CommandSearch({ open, onClose }: { open: boolean; onClose: () =>
           <Kbd>Esc</Kbd>
         </div>
         <ul id="search-results" role="listbox" className="max-h-[55vh] overflow-y-auto p-2">
-          {!q.trim() ? <li className="px-3 pb-1 pt-2 font-mono text-[11px] uppercase tracking-wider text-ink-3">Jump to</li> : null}
+          {!q.trim() ? <li className="px-3 pb-1 pt-2 text-[12px] font-semibold text-ink-3">Jump to</li> : null}
           {error ? <li className="px-3 py-3 text-sm text-danger">{error}</li> : null}
           {q.trim() && !loading && hits.length === 0 && !error ? (
             <li className="px-3 py-3 text-sm text-ink-3">No saved or published ideas match yet — try a broader word, or generate some.</li>

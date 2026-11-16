@@ -212,7 +212,7 @@ export function LabWorkspace({ initialTopic, history, historyStates }: { initial
           </div>
         ) : history.length ? (
           <div>
-            <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">Your recent generations</p>
+            <p className="mb-3 text-[12px] font-semibold text-ink-3">Your recent generations</p>
             <div className="space-y-4">
               {history.slice(0, 6).map((i, n) => (
                 <GeneratedIdeaCard key={i.id} idea={i} state={historyStates[i.id] ?? EMPTY} index={n} />

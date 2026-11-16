@@ -24,10 +24,10 @@ export default async function NewProjectPage({ searchParams }: { searchParams: P
       <Link href="/build" className="mb-8 inline-flex items-center gap-1.5 text-[13px] text-ink-3 hover:text-ink">
         <ArrowLeft size={14} /> Build Mode
       </Link>
-      <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent-text">Build this idea</p>
+      <p className="text-[12px] font-semibold text-accent-text">Build this idea</p>
       <h1 className="mt-3 font-serif text-[2.4rem] leading-[1.05] text-ink">{idea.title}</h1>
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <span className="font-mono text-[11px] uppercase tracking-wider text-ink-3">{categoryLabel(idea.category)}</span>
+        <span className="text-[12px] font-semibold text-ink-3">{categoryLabel(idea.category)}</span>
         <Meta idea={idea} />
       </div>
       <p className="mt-4 text-[15.5px] leading-relaxed text-ink-2">{idea.summary}</p>

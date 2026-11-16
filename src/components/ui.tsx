@@ -9,22 +9,22 @@ type Variant = "primary" | "secondary" | "ghost" | "danger" | "outline";
 type Size = "sm" | "md" | "lg" | "icon";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-ink text-bg hover:bg-ink/88 shadow-soft",
-  secondary: "bg-surface-2 text-ink hover:bg-surface-3 border border-line",
+  primary: "bg-brand text-white shadow-[0_8px_24px_-8px_rgba(124,58,237,0.6)] hover:brightness-110 hover:shadow-[0_10px_30px_-8px_rgba(124,58,237,0.75)]",
+  secondary: "glass text-ink hover:bg-surface-3",
   outline: "border border-line-strong text-ink hover:bg-surface-2",
   ghost: "text-ink-2 hover:text-ink hover:bg-surface-2",
   danger: "bg-danger-soft text-danger hover:brightness-95",
 };
 const sizes: Record<Size, string> = {
-  sm: "h-8 px-3 text-[13px] gap-1.5 rounded-lg",
-  md: "h-10 px-4 text-sm gap-2 rounded-xl",
-  lg: "h-12 px-5 text-[15px] gap-2 rounded-xl",
-  icon: "h-9 w-9 rounded-lg",
+  sm: "h-8 px-3.5 text-[13px] gap-1.5 rounded-full",
+  md: "h-10 px-5 text-sm gap-2 rounded-full",
+  lg: "h-12 px-6 text-[15px] gap-2 rounded-full",
+  icon: "h-9 w-9 rounded-full",
 };
 
 export function buttonClass(variant: Variant = "primary", size: Size = "md", extra?: string) {
   return cx(
-    "inline-flex items-center justify-center font-medium whitespace-nowrap select-none transition-[background,color,transform,box-shadow] duration-150 active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none",
+    "inline-flex items-center justify-center font-semibold whitespace-nowrap select-none transition-[background,color,transform,box-shadow] duration-150 active:scale-[0.97] disabled:opacity-50 disabled:pointer-events-none",
     variants[variant],
     sizes[size],
     extra,
@@ -66,7 +66,7 @@ export function Spinner({ className }: { className?: string }) {
 }
 
 export function Card({ className, ...rest }: ComponentProps<"div">) {
-  return <div className={cx("rounded-2xl border border-line bg-surface shadow-soft", className)} {...rest} />;
+  return <div className={cx("glass rounded-3xl", className)} {...rest} />;
 }
 
 export function Chip({
@@ -79,8 +79,8 @@ export function Chip({
       type="button"
       aria-pressed={active}
       className={cx(
-        "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-[13px] transition-colors",
-        active ? "border-ink bg-ink text-bg" : "border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink",
+        "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-4 text-[13px] font-medium transition-all",
+        active ? "border-transparent bg-brand text-white shadow-[0_6px_18px_-8px_rgba(124,58,237,0.7)]" : "border-line bg-surface text-ink-2 backdrop-blur-xl hover:border-line-strong hover:text-ink",
         className,
       )}
       {...rest}
@@ -96,7 +96,7 @@ export function Badge({ tone = "neutral", className, children }: { tone?: "neutr
     warn: "bg-warn-soft text-warn",
     danger: "bg-danger-soft text-danger",
   };
-  return <span className={cx("inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 font-mono text-[11px] uppercase tracking-wide", tones[tone], className)}>{children}</span>;
+  return <span className={cx("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11.5px] font-semibold capitalize", tones[tone], className)}>{children}</span>;
 }
 
 export function Label({ className, ...rest }: ComponentProps<"label">) {
@@ -104,7 +104,7 @@ export function Label({ className, ...rest }: ComponentProps<"label">) {
 }
 
 const field =
-  "w-full rounded-xl border border-line bg-surface px-3.5 text-[15px] text-ink placeholder:text-ink-3 transition-colors focus:border-line-strong focus:outline-none focus-visible:outline-2 focus-visible:outline-[var(--ring)]";
+  "w-full rounded-2xl border border-line bg-surface px-4 text-[15px] text-ink placeholder:text-ink-3 backdrop-blur-xl transition-colors focus:border-line-strong focus:bg-surface-2 focus:outline-none focus-visible:outline-2 focus-visible:outline-[var(--ring)] [&>option]:bg-[#16133a] [&>option]:text-white";
 
 export function Input({ className, ...rest }: ComponentProps<"input">) {
   return <input className={cx(field, "h-11", className)} {...rest} />;
@@ -127,15 +127,15 @@ export function Skeleton({ className }: { className?: string }) {
 }
 
 export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
-  return <p className={cx("font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3", className)}>{children}</p>;
+  return <p className={cx("text-[13px] font-semibold text-ink-3", className)}>{children}</p>;
 }
 
 export function PageHeader({ eyebrow, title, description, actions }: { eyebrow?: string; title: ReactNode; description?: ReactNode; actions?: ReactNode }) {
   return (
     <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between animate-fade-up">
       <div className="max-w-2xl">
-        {eyebrow ? <Eyebrow className="mb-3">{eyebrow}</Eyebrow> : null}
-        <h1 className="font-serif text-[2.4rem] leading-[1.05] tracking-[-0.01em] text-ink md:text-[3rem]">{title}</h1>
+        {eyebrow ? <p className="mb-2 text-[13px] font-semibold text-brand">{eyebrow}</p> : null}
+        <h1 className="text-[2rem] font-extrabold leading-[1.08] tracking-[-0.03em] text-ink md:text-[2.6rem]">{title}</h1>
         {description ? <p className="mt-3 text-[15px] leading-relaxed text-ink-2 md:text-base">{description}</p> : null}
       </div>
       {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
@@ -157,8 +157,8 @@ export function SectionHeader({ title, description, action }: { title: string; d
 
 export function EmptyState({ icon, title, description, action }: { icon?: ReactNode; title: string; description: ReactNode; action?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-dashed border-line-strong px-6 py-14 text-center animate-fade-in">
-      {icon ? <div className="mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-surface-2 text-ink-2">{icon}</div> : null}
+    <div className="glass flex flex-col items-center rounded-3xl px-6 py-14 text-center animate-fade-in">
+      {icon ? <div className="bg-brand mb-4 grid h-14 w-14 place-items-center rounded-full text-white shadow-[0_10px_30px_-10px_rgba(124,58,237,0.8)]">{icon}</div> : null}
       <h3 className="text-base font-semibold text-ink">{title}</h3>
       <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-ink-2">{description}</p>
       {action ? <div className="mt-5">{action}</div> : null}
